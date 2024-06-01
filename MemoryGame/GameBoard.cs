@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using static MemoryGame.Board;
 
 namespace MemoryGame
 {
-    public class Board
+    public class GameBoard
     {
-        private int[,] m_Board;
+        private Card[,] m_Board;
         private int m_NumOfRows;
         private int m_NumOfColumns;
 
@@ -54,85 +53,88 @@ namespace MemoryGame
             }
         }
 
-        public ref int[,] BoardShownToUser
+        public Card[,] Board
         {
             get
             {
-                return ref m_Board;
+                return m_Board;
             }
         }
 
-        public Board(int i_NumOfRows, int i_NumOfColumns)
+        public GameBoard(int i_NumOfRows, int i_NumOfColumns)
         {
             m_NumOfRows = i_NumOfRows;
             m_NumOfColumns = i_NumOfColumns;
+            m_Board = new Card[i_NumOfRows, i_NumOfColumns];
             fillBoardWithHiddenCards();
         }
 
         private void fillBoardWithHiddenCards()
         {
-            int[] values = generateValues();
+            Card[] cards = generateRandomCards();
 
             Random rand = new Random();
-            for (int i = values.Length - 1; i > 0; i--)
+            int temporaryCardsAmount = cards.Length;
+            while (temporaryCardsAmount > 1)
             {
-                int j = rand.Next(i + 1);
-                int temp = values[i];
-                values[i] = values[j];
-                values[j] = temp;
+                temporaryCardsAmount--;
+                int randomIndex = rand.Next(temporaryCardsAmount + 1);
+                Card temporaryCard = cards[randomIndex];
+                cards[randomIndex] = cards[temporaryCardsAmount];
+                cards[temporaryCardsAmount] = temporaryCard;
             }
 
-            int shuffleIndex = 0;
+            int cardIndexInCards = 0;
             for (int i = 0; i < m_NumOfRows; i++)
             {
                 for (int j = 0; j < m_NumOfColumns; j++)
                 {
-                    m_Board[i, j] = values[shuffleIndex];
-                    shuffleIndex++;
+                    m_Board[i, j] = cards[cardIndexInCards];
+                    cardIndexInCards++;
                 }
             }
         }
-        private int[] generateValues()
+        private Card[] generateRandomCards()
         {
             int numOfCards = m_NumOfRows * m_NumOfColumns;
             int numOfPairs = numOfCards / 2;
-            int[] values = new int[numOfCards];
+            Card[] cards = new Card[numOfCards];
 
             for (int i = 0; i < numOfPairs; i++)
             {
-                values[i * 2] = i + 1;
-                values[i * 2 + 1] = i + 1;
+                cards[i * 2] = new Card(i + 1);
+                cards[i * 2 + 1] = new Card(i + 1);
             }
 
-            return values;
+            return cards;
         }
 
-        public int ShowCellToUser(Position position)
+        public Card RevealCard(Position position)
         {
-            m_BoardShownToUser[position.RowIndex, position.ColumnIndex] = m_BoardWithRevealedCards[position.RowIndex, position.ColumnIndex];
-            return m_BoardWithRevealedCards[position.RowIndex, position.ColumnIndex];
+            m_Board[position.RowIndex, position.ColumnIndex].IsRevealed = true;
+            return m_Board[position.RowIndex, position.ColumnIndex];
         }
 
-        public int GetCell(Position position)
+        public Card GetCard(Position position)
         {
-            return m_BoardWithRevealedCards[position.RowIndex, position.ColumnIndex];
+            return m_Board[position.RowIndex, position.ColumnIndex];
         }
 
-        public void GetHiddenCells()
+        public List<Position> GetCurrentHiddenCells()
         {
-            List<Board.Position> hiddenBoardCells = new List<Board.Position>();
-
-            for (int i = 0; i < board.NumOfRows; i++)
+            List<Position> currentHiddenBoardCells = new List<Position>();
+            for (int i = 0; i < m_NumOfRows; i++)
             {
-                for (int j = 0; j < board.NumOfColumns; j++)
+                for (int j = 0; j < m_NumOfColumns; j++)
                 {
-                    if (board.BoardShownToUser[i, j] == 0)
+                    if (m_Board[i, j].IsRevealed == false)
                     {
-
-                        hiddenBoardCells.Add(new Board.Position(i, j));
+                        currentHiddenBoardCells.Add(new GameBoard.Position(i, j));
                     }
                 }
             }
+
+            return currentHiddenBoardCells;
         }
     }
 }

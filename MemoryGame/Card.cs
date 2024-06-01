@@ -2,8 +2,35 @@
 
 namespace MemoryGame
 {
-    internal class Card
+    public struct Card
     {
+        private int m_Number;
+        private bool m_IsRevealed;
 
+        public Card(int i_Number)
+        {
+            m_Number = i_Number;
+            m_IsRevealed = false;
+        }
+
+        public int Number
+        {
+            get
+            {
+                return m_Number;
+            }
+        }
+
+        internal bool IsRevealed
+        {
+            get
+            {
+                return m_IsRevealed;
+            }
+            set
+            {
+                m_IsRevealed = value;
+            }
+        }
     }
 }
