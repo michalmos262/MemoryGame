@@ -2,10 +2,10 @@
 
 namespace MemoryGame
 {
-    internal class Board
+    public class Board
     {
         private int[,] m_BoardShownToUser;
-        private int[,] m_FinalBoard;
+        private int[,] m_BoardWithRevealedCards;
         private int m_NumOfRows;
         private int m_NumOfColumns;
 
@@ -25,16 +25,24 @@ namespace MemoryGame
             }
         }
 
+        public ref int[,] BoardShownToUser
+        {
+            get
+            {
+                return ref m_BoardShownToUser;
+            }
+        }
+
         public Board(int i_NumOfRows, int i_NumOfColumns)
         {
             m_NumOfRows = i_NumOfRows;
             m_NumOfColumns = i_NumOfColumns;
             m_BoardShownToUser = new int[i_NumOfRows, i_NumOfColumns];
-            m_FinalBoard = new int[i_NumOfRows, i_NumOfColumns];
-            fillFinalBoard();
+            m_BoardWithRevealedCards = new int[i_NumOfRows, i_NumOfColumns];
+            fillBoardWithRevealedCards();
         }
 
-        private void fillFinalBoard()
+        private void fillBoardWithRevealedCards()
         {
             int[] values = generateValues();
 
@@ -52,7 +60,7 @@ namespace MemoryGame
             {
                 for (int j = 0; j < m_NumOfColumns; j++)
                 {
-                    m_FinalBoard[i, j] = values[shuffleIndex];
+                    m_BoardWithRevealedCards[i, j] = values[shuffleIndex];
                     shuffleIndex++;
                 }
             }
@@ -74,13 +82,13 @@ namespace MemoryGame
 
         public int ShowCellToUser(int row, int column)
         {
-            m_BoardShownToUser[row, column] = m_FinalBoard[row, column];
-            return m_FinalBoard[row, column];
+            m_BoardShownToUser[row, column] = m_BoardWithRevealedCards[row, column];
+            return m_BoardWithRevealedCards[row, column];
         }
 
         public int GetCell(int row, int column)
         {
-            return m_FinalBoard[row, column];
+            return m_BoardWithRevealedCards[row, column];
         }
     }
 }
