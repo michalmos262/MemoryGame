@@ -5,7 +5,7 @@ namespace MemoryGame
     internal class GameManager
     {
         private eGameModes m_GameMode;
-        private Board m_Board;
+        private GameBoard m_Board;
         private Player[] m_Players;
         private uint m_CurrentPlayerIndex;
         private bool m_IsGameOver;
@@ -14,7 +14,7 @@ namespace MemoryGame
         public GameManager(eGameModes i_GameMode, int i_NumOfRowsInBoard, int i_NumOfColumnsInBoard)
         {
             m_GameMode = i_GameMode;
-            m_Board = new Board(i_NumOfRowsInBoard, i_NumOfColumnsInBoard);
+            m_Board = new GameBoard(i_NumOfRowsInBoard, i_NumOfColumnsInBoard);
             m_CurrentPlayerIndex = 0;
             m_IsGameOver = false;
             m_Players = new Player[k_NumOfPlayers];
@@ -34,15 +34,15 @@ namespace MemoryGame
             return m_Board.AreAllCardsRevealed();
         }
 
-        public eTurnChoiceStatus GetChoiceStatus(int i_Row, int i_Column)
+        public eTurnChoiceStatus GetChoiceStatus(GameBoard.Position i_ChosenPosition)
         {
             eTurnChoiceStatus choiceStatus;
 
-            if(!m_Board.isInBoard(i_Row, i_Column))
+            if(!m_Board.IsInBoard(i_ChosenPosition))
             {
                 choiceStatus = eTurnChoiceStatus.OutsideBoard;
             }
-            else if(m_Board.isCardRevealed(i_Row, i_Column))
+            else if(m_Board.IsCardRevealed(i_ChosenPosition))
             {
                 choiceStatus = eTurnChoiceStatus.TakenCell;
             }
@@ -54,5 +54,4 @@ namespace MemoryGame
             return choiceStatus;
         }
     }
-
 }

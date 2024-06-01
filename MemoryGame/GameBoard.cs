@@ -136,5 +136,22 @@ namespace MemoryGame
 
             return currentHiddenBoardCells;
         }
+
+        public bool IsInBoard(Position i_Position)
+        {
+            return i_Position.RowIndex < m_NumOfRows && i_Position.ColumnIndex < m_NumOfColumns;
+        }
+
+        public bool IsCardRevealed(Position i_Position)
+        {
+            Card cardInPosition = GetCard(i_Position);
+            return cardInPosition.IsRevealed;
+        }
+
+        public bool AreAllCardsRevealed()
+        {
+            List<Position> currentHiddenBoardCells = GetCurrentHiddenCells();
+            return currentHiddenBoardCells.Count == 0;
+        }
     }
 }
