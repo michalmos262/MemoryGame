@@ -109,7 +109,7 @@ namespace MemoryGame
             return cards;
         }
 
-        public Card ShowCardToUser(Position position)
+        public Card RevealCard(Position position)
         {
             m_Board[position.RowIndex, position.ColumnIndex].IsRevealed = true;
             return m_Board[position.RowIndex, position.ColumnIndex];
