@@ -32,11 +32,10 @@ namespace MemoryGame
             }
         }
 
-        public (int, int) ChooseRandomCellInBoard(ref Board board)
+        public Board.Position ChooseRandomCellInBoard(ref Board board)
         {
             Random random = new Random();
-            List<(int, int)> hiddenBoardCells = new List<(int, int)>();
-            (int, int) chosenCell = (-1, -1);
+            List<Board.Position> hiddenBoardCells = new List<Board.Position>();
 
             for (int i = 0; i < board.NumOfRows; i++)
             {
@@ -44,18 +43,15 @@ namespace MemoryGame
                 {
                     if (board.BoardShownToUser[i, j] == 0)
                     {
-                        hiddenBoardCells.Add((i, j));
+
+                        hiddenBoardCells.Add(new Board.Position(i, j));
                     }
                 }
             }
             
             int randomIndex = random.Next(hiddenBoardCells.Count);
-            if (hiddenBoardCells.Count != 0)
-            {
-                chosenCell = hiddenBoardCells[randomIndex];
-            }
             
-            return chosenCell;
+            return hiddenBoardCells[randomIndex];
         }
     }
 }

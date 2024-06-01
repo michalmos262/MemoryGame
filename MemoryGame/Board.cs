@@ -1,13 +1,42 @@
 ﻿using System;
+using System.Collections.Generic;
+using static MemoryGame.Board;
 
 namespace MemoryGame
 {
     public class Board
     {
-        private int[,] m_BoardShownToUser;
-        private int[,] m_BoardWithRevealedCards;
+        private int[,] m_Board;
         private int m_NumOfRows;
         private int m_NumOfColumns;
+
+        public struct Position
+        {
+            private int m_RowIndex;
+            private int m_ColumnIndex;
+
+            public Position(int i_RowIndex, int i_ColumnIndex)
+            {
+                m_RowIndex = i_RowIndex;
+                m_ColumnIndex = i_ColumnIndex;
+            }
+
+            public int RowIndex
+            {
+                get
+                {
+                    return m_RowIndex;
+                }
+            }
+
+            public int ColumnIndex
+            {
+                get
+                {
+                    return m_ColumnIndex;
+                }
+            }
+        }
 
         public int NumOfRows
         {
@@ -29,7 +58,7 @@ namespace MemoryGame
         {
             get
             {
-                return ref m_BoardShownToUser;
+                return ref m_Board;
             }
         }
 
@@ -37,12 +66,10 @@ namespace MemoryGame
         {
             m_NumOfRows = i_NumOfRows;
             m_NumOfColumns = i_NumOfColumns;
-            m_BoardShownToUser = new int[i_NumOfRows, i_NumOfColumns];
-            m_BoardWithRevealedCards = new int[i_NumOfRows, i_NumOfColumns];
-            fillBoardWithRevealedCards();
+            fillBoardWithHiddenCards();
         }
 
-        private void fillBoardWithRevealedCards()
+        private void fillBoardWithHiddenCards()
         {
             int[] values = generateValues();
 
@@ -60,7 +87,7 @@ namespace MemoryGame
             {
                 for (int j = 0; j < m_NumOfColumns; j++)
                 {
-                    m_BoardWithRevealedCards[i, j] = values[shuffleIndex];
+                    m_Board[i, j] = values[shuffleIndex];
                     shuffleIndex++;
                 }
             }
@@ -80,15 +107,32 @@ namespace MemoryGame
             return values;
         }
 
-        public int ShowCellToUser(int row, int column)
+        public int ShowCellToUser(Position position)
         {
-            m_BoardShownToUser[row, column] = m_BoardWithRevealedCards[row, column];
-            return m_BoardWithRevealedCards[row, column];
+            m_BoardShownToUser[position.RowIndex, position.ColumnIndex] = m_BoardWithRevealedCards[position.RowIndex, position.ColumnIndex];
+            return m_BoardWithRevealedCards[position.RowIndex, position.ColumnIndex];
         }
 
-        public int GetCell(int row, int column)
+        public int GetCell(Position position)
         {
-            return m_BoardWithRevealedCards[row, column];
+            return m_BoardWithRevealedCards[position.RowIndex, position.ColumnIndex];
+        }
+
+        public void GetHiddenCells()
+        {
+            List<Board.Position> hiddenBoardCells = new List<Board.Position>();
+
+            for (int i = 0; i < board.NumOfRows; i++)
+            {
+                for (int j = 0; j < board.NumOfColumns; j++)
+                {
+                    if (board.BoardShownToUser[i, j] == 0)
+                    {
+
+                        hiddenBoardCells.Add(new Board.Position(i, j));
+                    }
+                }
+            }
         }
     }
 }
