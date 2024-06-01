@@ -38,17 +38,15 @@ namespace MemoryGame
         {
             int[] values = generateValues();
 
-            // Shuffle the array if needed
-            Random rnd = new Random();
+            Random rand = new Random();
             for (int i = values.Length - 1; i > 0; i--)
             {
-                int j = rnd.Next(i + 1);
+                int j = rand.Next(i + 1);
                 int temp = values[i];
                 values[i] = values[j];
                 values[j] = temp;
             }
 
-            // Fill the matrix with the shuffled values
             int shuffleIndex = 0;
             for (int i = 0; i < m_NumOfRows; i++)
             {
@@ -65,7 +63,6 @@ namespace MemoryGame
             int numOfPairs = numOfCards / 2;
             int[] values = new int[numOfCards];
 
-            // Populate the array with pairs of values
             for (int i = 0; i < numOfPairs; i++)
             {
                 values[i * 2] = i + 1;
@@ -80,10 +77,10 @@ namespace MemoryGame
             m_BoardShownToUser[row, column] = m_FinalBoard[row, column];
             return m_FinalBoard[row, column];
         }
+
         public int GetCell(int row, int column)
         {
             return m_FinalBoard[row, column];
         }
     }
-
 }
