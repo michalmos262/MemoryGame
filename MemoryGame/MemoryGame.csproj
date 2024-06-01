@@ -36,11 +36,12 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Board.cs" />
+    <Compile Include="GameBoard.cs" />
     <Compile Include="Card.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="eBoardCells.cs" />
     <Compile Include="GameManager.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="UI.cs" />
   </ItemGroup>
   <ItemGroup>

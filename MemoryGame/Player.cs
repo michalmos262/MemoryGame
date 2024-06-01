@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MemoryGame
 {
-    public struct Player
+    public class Player
     {
         private int m_Score;
         private bool m_isHuman;
@@ -32,25 +32,12 @@ namespace MemoryGame
             }
         }
 
-        public Board.Position ChooseRandomCellInBoard(ref Board board)
+        public GameBoard.Position ChooseRandomCellInBoard(GameBoard board)
         {
             Random random = new Random();
-            List<Board.Position> hiddenBoardCells = new List<Board.Position>();
+            List<GameBoard.Position> hiddenBoardCells = board.GetCurrentHiddenCells();
 
-            for (int i = 0; i < board.NumOfRows; i++)
-            {
-                for (int j = 0; j < board.NumOfColumns; j++)
-                {
-                    if (board.BoardShownToUser[i, j] == 0)
-                    {
-
-                        hiddenBoardCells.Add(new Board.Position(i, j));
-                    }
-                }
-            }
-            
             int randomIndex = random.Next(hiddenBoardCells.Count);
-            
             return hiddenBoardCells[randomIndex];
         }
     }
