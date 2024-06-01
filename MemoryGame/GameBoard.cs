@@ -74,23 +74,23 @@ namespace MemoryGame
             Card[] cards = generateRandomCards();
 
             Random rand = new Random();
-            int n = cards.Length;
-            while (n > 1)
+            int temporaryCardsAmount = cards.Length;
+            while (temporaryCardsAmount > 1)
             {
-                n--;
-                int k = rand.Next(n + 1);
-                Card value = cards[k];
-                cards[k] = cards[n];
-                cards[n] = value;
+                temporaryCardsAmount--;
+                int randomIndex = rand.Next(temporaryCardsAmount + 1);
+                Card temporaryCard = cards[randomIndex];
+                cards[randomIndex] = cards[temporaryCardsAmount];
+                cards[temporaryCardsAmount] = temporaryCard;
             }
 
-            int cardIndex = 0;
+            int cardIndexInCards = 0;
             for (int i = 0; i < m_NumOfRows; i++)
             {
                 for (int j = 0; j < m_NumOfColumns; j++)
                 {
-                    m_Board[i, j] = cards[cardIndex];
-                    cardIndex++;
+                    m_Board[i, j] = cards[cardIndexInCards];
+                    cardIndexInCards++;
                 }
             }
         }
