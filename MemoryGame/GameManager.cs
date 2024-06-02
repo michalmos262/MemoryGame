@@ -24,9 +24,17 @@ namespace MemoryGame
             }
         }
 
+        public GameBoard GameBoard
+        {
+            get
+            {
+                return m_Board;
+            }
+        }
+
         private void passTurn()
         {
-            m_CurrentPlayerIndex = (m_CurrentPlayerIndex + 1) % (uint)m_Players.Length;
+            m_CurrentPlayerIndex = (m_CurrentPlayerIndex + 1) % k_NumOfPlayers;
         }
 
         private bool isGameOver()
@@ -34,24 +42,52 @@ namespace MemoryGame
             return m_Board.AreAllCardsRevealed();
         }
 
-        public eTurnChoiceStatus GetChoiceStatus(GameBoard.Position i_ChosenPosition)
+        public ePositionStatus GetPositionChoiceStatus(GameBoard.Position i_ChosenPosition)
         {
-            eTurnChoiceStatus choiceStatus;
+            ePositionStatus positionStatus;
 
-            if(!m_Board.IsInBoard(i_ChosenPosition))
+            if(!m_Board.IsValidPosition(i_ChosenPosition))
             {
-                choiceStatus = eTurnChoiceStatus.OutsideBoard;
+                positionStatus = ePositionStatus.OutsideBoard;
             }
             else if(m_Board.IsCardRevealed(i_ChosenPosition))
             {
-                choiceStatus = eTurnChoiceStatus.TakenCell;
+                positionStatus = ePositionStatus.RevealedPosition;
             }
             else
             {
-                choiceStatus = eTurnChoiceStatus.Valid;
+                positionStatus = ePositionStatus.Valid;
             }
 
-            return choiceStatus;
+            return positionStatus;
+        }
+
+        public Player GetWinner()
+        {
+            int maxScore, currentPlayerScore;
+            Player winner;
+
+            if (isGameOver())
+            {
+                winner = m_Players[0];
+                maxScore = m_Players[0].GetNumOfRevealedCards();
+
+                foreach (Player player in m_Players)
+                {
+                    currentPlayerScore = player.GetNumOfRevealedCards();
+                    if (currentPlayerScore > maxScore)
+                    {
+                        winner = player;
+                        maxScore = currentPlayerScore;
+                    }
+                }
+            }
+            else
+            {
+                winner = null;
+            }
+
+            return winner;
         }
     }
 }

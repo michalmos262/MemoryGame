@@ -1,10 +1,10 @@
 ﻿
 namespace MemoryGame
 {
-    internal enum eTurnChoiceStatus
+    internal enum ePositionStatus
     {
         Valid = 0,
-        TakenCell = 1,
+        RevealedPosition = 1,
         OutsideBoard = 2
     }
 }

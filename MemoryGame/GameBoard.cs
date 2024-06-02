@@ -115,6 +115,15 @@ namespace MemoryGame
             return m_Board[position.RowIndex, position.ColumnIndex];
         }
 
+        public void RevealPair(Position i_Card1Position, Position i_Card2Position)
+        {
+            if (IsPair(i_Card1Position, i_Card2Position))
+            {
+                RevealCard(i_Card1Position);
+                RevealCard(i_Card2Position);
+            }
+        }
+
         public Card GetCard(Position position)
         {
             return m_Board[position.RowIndex, position.ColumnIndex];
@@ -137,7 +146,7 @@ namespace MemoryGame
             return currentHiddenBoardCells;
         }
 
-        public bool IsInBoard(Position i_Position)
+        public bool IsValidPosition(Position i_Position)
         {
             return i_Position.RowIndex < m_NumOfRows && i_Position.ColumnIndex < m_NumOfColumns;
         }
@@ -152,6 +161,16 @@ namespace MemoryGame
         {
             List<Position> currentHiddenBoardCells = GetCurrentHiddenCells();
             return currentHiddenBoardCells.Count == 0;
+        }
+
+        public bool IsPair(Position i_Card1Position, Position i_Card2Position)
+        {
+            Card card1, card2;
+
+            card1 = m_Board[i_Card1Position.RowIndex, i_Card1Position.ColumnIndex];
+            card2 = m_Board[i_Card2Position.RowIndex, i_Card2Position.ColumnIndex];
+
+            return card1.Number == card2.Number;
         }
     }
 }
