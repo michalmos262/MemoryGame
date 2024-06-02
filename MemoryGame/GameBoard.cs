@@ -6,6 +6,10 @@ namespace MemoryGame
     public class GameBoard
     {
         private Card[,] m_Board;
+        private const int k_MinNumOfRows = 4;
+        private const int k_MinNumOfColumns = 4;
+        private const int k_MaxNumOfRows = 6;
+        private const int k_MaxNumOfColumns = 6;
         private int m_NumOfRows;
         private int m_NumOfColumns;
 
@@ -37,6 +41,37 @@ namespace MemoryGame
             }
         }
 
+        public int MinNumOfRows
+        {
+            get
+            {
+                return k_MinNumOfRows;
+            }
+        }
+
+        public int MinNumOfColumns
+        {
+            get
+            {
+                return k_MinNumOfColumns;
+            }
+        }
+
+        public int MaxNumOfRows
+        {
+            get
+            {
+                return k_MaxNumOfRows;
+            }
+        }
+
+        public int MaxNumOfColumns
+        {
+            get
+            {
+                return k_MaxNumOfColumns;
+            }
+        }
         public int NumOfRows
         {
             get
@@ -59,6 +94,11 @@ namespace MemoryGame
             {
                 return m_Board;
             }
+        }
+
+        public int GetNumOfCardPairs()
+        {
+            return m_NumOfRows * m_NumOfColumns / 2;
         }
 
         public GameBoard(int i_NumOfRows, int i_NumOfColumns)
@@ -115,16 +155,16 @@ namespace MemoryGame
             return m_Board[position.RowIndex, position.ColumnIndex];
         }
 
-        public void RevealPair(Position i_Card1Position, Position i_Card2Position)
+        public void RevealPair(Position i_FirstCardPosition, Position i_SecondCardPosition)
         {
-            if (IsPair(i_Card1Position, i_Card2Position))
+            if (IsPair(i_FirstCardPosition, i_SecondCardPosition))
             {
-                RevealCard(i_Card1Position);
-                RevealCard(i_Card2Position);
+                RevealCard(i_FirstCardPosition);
+                RevealCard(i_SecondCardPosition);
             }
         }
 
-        public Card GetCard(Position position)
+        public Card GetCardInPosition(Position position)
         {
             return m_Board[position.RowIndex, position.ColumnIndex];
         }
@@ -153,7 +193,7 @@ namespace MemoryGame
 
         public bool IsCardRevealed(Position i_Position)
         {
-            Card cardInPosition = GetCard(i_Position);
+            Card cardInPosition = GetCardInPosition(i_Position);
             return cardInPosition.IsRevealed;
         }
 
@@ -163,14 +203,14 @@ namespace MemoryGame
             return currentHiddenBoardCells.Count == 0;
         }
 
-        public bool IsPair(Position i_Card1Position, Position i_Card2Position)
+        public bool IsPair(Position i_FirstCardPosition, Position i_SecondCardPosition)
         {
-            Card card1, card2;
+            Card firstCard, secondCard;
 
-            card1 = m_Board[i_Card1Position.RowIndex, i_Card1Position.ColumnIndex];
-            card2 = m_Board[i_Card2Position.RowIndex, i_Card2Position.ColumnIndex];
+            firstCard = m_Board[i_FirstCardPosition.RowIndex, i_FirstCardPosition.ColumnIndex];
+            secondCard = m_Board[i_SecondCardPosition.RowIndex, i_SecondCardPosition.ColumnIndex];
 
-            return card1.Number == card2.Number;
+            return firstCard.Number == secondCard.Number;
         }
 
         public static bool AreDimensionsValid(int i_NumOfRows, int i_NumOfColumns)

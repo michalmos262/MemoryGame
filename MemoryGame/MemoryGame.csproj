@@ -40,8 +40,8 @@
     <Compile Include="Card.cs" />
     <Compile Include="eGameModes.cs" />
     <Compile Include="ePositionStatus.cs" />
+    <Compile Include="MemoryGame.cs" />
     <Compile Include="Player.cs" />
-    <Compile Include="eBoardCells.cs" />
     <Compile Include="GameManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="UI.cs" />

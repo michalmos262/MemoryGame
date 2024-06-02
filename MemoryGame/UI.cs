@@ -1,95 +1,177 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MemoryGame
 {
-    internal class UI
+    public class UI
     {
-        private GameManager m_Game;
-        private char[] m_CardsLetters;
-        private const int k_RevealTimeInMiliseconds = 2000;
+        public const int k_ErrorIndicator = -1;
+        public const char k_quitButton = 'Q';
+        public const string k_PossibleCardIcons = "ABCDEFGHIJKLMNOPRSTUVWXYZ";
+        public const int k_RevealTimeInMiliseconds = 2000;
 
-        public UI(GameManager i_Game)
-        {
-            m_Game = i_Game;
-            assignRandomLettersToCards();
-        }
-
-        internal char[] CardsLetters
-        {
-            get 
-            { 
-                return m_CardsLetters; 
-            }
-        }
-
-        private void assignRandomLettersToCards()
-        {
-            string pool = "ABCDEFGHIJKLMNOPRSTUVWXYZ";
-            Random rand = new Random();
-            int numOfPairsInGame;
-            char[] charArray;
-
-            numOfPairsInGame = m_Game.GetNumOfPairsInGame();
-            m_CardsLetters = new char[numOfPairsInGame + 1];
-            charArray = pool.ToCharArray();
-            charArray = charArray.OrderBy(c => rand.Next()).ToArray();
-            m_CardsLetters = charArray.Take(numOfPairsInGame + 1).ToArray();
-            m_CardsLetters[0] = ' ';
-        }
-
-        public void ClearScreen()
+        public static void ClearScreen()
         {
             Ex02.ConsoleUtils.Screen.Clear();
         }
 
-        public void ShowGameBoard()
+        public static void ShowGameBoard(GameBoard board)
         {
-            printColumnLabels();
-            // Print horizontal line
-            Console.WriteLine("  " + new string('=', (m_Game.GameBoard.NumOfColumns * 4) + 1));
-            printGameBoard();
+            printColumnLabels(board);
+            Console.WriteLine("  " + new string('=', (board.NumOfColumns * 4) + 1));
+            printGameBoard(board);
         }
 
-        private void printColumnLabels()
+        private static void printColumnLabels(GameBoard board)
         {
             Console.Write("   ");
-            for (int col = 0; col < m_Game.GameBoard.NumOfColumns; col++)
+            for (int col = 0; col < board.NumOfColumns; col++)
             {
                 char columnLabel = (char)('A' + col);
                 Console.Write($" {columnLabel}  ");
             }
+
             Console.WriteLine();
         }
 
-        private void printGameBoard()
+        private static void printGameBoard(GameBoard board)
         {
-            Card currentPrintedCard;
-            char currentPrintedCardLetter;
+            Card currentCard;
         
-            for (int row = 0; row < m_Game.GameBoard.NumOfRows; row++)
+            for (int row = 0; row < board.NumOfRows; row++)
             {
-                Console.Write($"{row + 1} |");
-                for (int col = 0; col < m_Game.GameBoard.NumOfColumns; col++)
+                Console.Write($"{row + 1} | ");
+                for (int col = 0; col < board.NumOfColumns; col++)
                 {
-                    GameBoard.Position position = new GameBoard.Position(row, col);
-                    currentPrintedCard = m_Game.GameBoard.GetCard(position);
-                    currentPrintedCardLetter = m_CardsLetters[currentPrintedCard.Number];
                     Console.Write(" ");
-                    Console.Write(currentPrintedCardLetter);
-                    Console.Write(" |");
+                    GameBoard.Position position = new GameBoard.Position(row, col);
+                    currentCard = board.GetCardInPosition(position);
+                    if (currentCard.IsRevealed)
+                    {
+                        char cardIconToPrint = (char)('A' + currentCard.Number);
+                        Console.Write(cardIconToPrint);
+                    }
+
+                    Console.Write(" | ");
                 }
+
                 Console.WriteLine();
-                Console.WriteLine("  " + new string('=', (m_Game.GameBoard.NumOfColumns * 4) + 1));
+                Console.WriteLine("  " + new string('=', (board.NumOfColumns * 4) + 1));
             }
         }
 
         private void sleep()
         {
             System.Threading.Thread.Sleep(k_RevealTimeInMiliseconds);
+        }
+
+        public static string GetPlayerName()
+        {
+            Console.WriteLine("Please enter your name:");
+            string name = Console.ReadLine();
+
+            return name;
+        }
+
+        public static eGameModes GetGameMode()
+        {
+            int optionNumberFromUser;
+            eGameModes gameMode = eGameModes.ErrorMode;
+
+            Console.WriteLine($"Who do you want to play with? Please insert the right option number:\n" +
+                              $"({(int)eGameModes.HumanVsComputer}) Computer\n" +
+                              $"({(int)eGameModes.HumanVsHuman}) Another player");
+            string userInput = Console.ReadLine();
+            bool isOptionNumber = int.TryParse(userInput, out optionNumberFromUser);
+            if (isOptionNumber)
+            {
+                if (optionNumberFromUser == (int)eGameModes.HumanVsComputer)
+                {
+                    gameMode = eGameModes.HumanVsComputer;
+                }
+                else if (optionNumberFromUser == (int)eGameModes.HumanVsHuman)
+                {
+                    gameMode = eGameModes.HumanVsHuman;
+                }
+            }
+
+            return gameMode;
+        }
+
+        private static int getNumberFromUserAndCheckValidity()
+        {
+            string userInput = Console.ReadLine();
+            int numberFromUser;
+            bool isNumber = int.TryParse(userInput, out numberFromUser);
+            if (!isNumber)
+            {
+                numberFromUser = k_ErrorIndicator;
+            }
+
+            return numberFromUser;
+        }
+
+        public static int GetBoardNumOfRows()
+        {
+            Console.WriteLine("Enter the number of the board rows:");
+            int numberFromUser = getNumberFromUserAndCheckValidity();
+
+            return numberFromUser;
+        }
+
+        public static int GetBoardNumOfColumns()
+        {
+            Console.WriteLine("Enter the number of the board columns:");
+            int numberFromUser = getNumberFromUserAndCheckValidity();
+
+            return numberFromUser;
+        }
+
+        private static bool isValidPositionInput(string userInput, GameBoard board)
+        {
+            bool isRightLength = userInput.Length == 2;
+            bool isFirstLetterCharacter = userInput[0] >= 'A' && userInput[0] <= (char)('A' + board.MaxNumOfColumns);
+            bool isSecondLetterDigit = userInput[0] >= '0' && userInput[0] <= (char)('0' + board.MaxNumOfRows);
+
+            return isRightLength && isFirstLetterCharacter && isSecondLetterDigit;
+        }
+
+        public static void PrintPositionNotInBoardRange(GameBoard.Position position)
+        {
+            Console.WriteLine($"Position {position} is not in the board range!");
+        }
+
+        public static void PrintPositionNotInsertedCorrectly(GameBoard.Position position)
+        {
+            Console.WriteLine($"Position {position} was not inserted correctly!" +
+                              $"A correct position can be for example: E3 (mean column E, row 3)");
+        }
+
+        public static void PrintCardAlreadyRevealed(GameBoard.Position position)
+        {
+            Console.WriteLine($"The card in position {position} is already revealed." +
+                              $"You need to choose a hidden card position");
+        }
+
+        private string getPositionAsText(GameBoard.Position position)
+        {
+            char row = (char)(position.RowIndex + 1);
+            char column = (char)('A' + position.ColumnIndex);
+
+            return $"{column}{row}";
+        }
+
+        public void printComputerChoose(GameBoard.Position computerChosenPosition)
+        {
+            Console.Write($"Computer chose position {getPositionAsText(computerChosenPosition)}");
+        }
+
+        public static string GetPositionFromUser(GameBoard board)
+        {
+            Console.WriteLine("Enter a board position to reveal a card (for example position E3 means column E, row 3):");
+            string userInput = Console.ReadLine();
+            //TODO: if (!isValidPositionInput(userInput, board) && isPositionInBoardRange() && !isCardRevealed())
+            return userInput;
         }
     }
 }

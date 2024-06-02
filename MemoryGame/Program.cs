@@ -7,10 +7,9 @@ namespace Ex_02
     {
         public static void Main()
         {
-            GameManager game = new GameManager(eGameModes.HumanVsHuman, 5, 4);
-            UI userInterface = new UI(game);
+            MemoryGame.MemoryGame game = new MemoryGame.MemoryGame();
 
-            userInterface.ShowGameBoard();
+            game.Play();
         }
         
     }

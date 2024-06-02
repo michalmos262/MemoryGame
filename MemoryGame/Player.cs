@@ -1,14 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace MemoryGame
+﻿namespace MemoryGame
 {
     public class Player
     {
-        private int m_Score;
+        private string m_Name;
+        private const string k_ComputerName = "Computer";
         private bool m_isHuman;
+        private int m_Score;
 
-        public int Score
+        public Player()
+        {
+            m_Name = k_ComputerName;
+            m_isHuman = false;
+            m_Score = 0;
+        }
+
+        public Player(string i_Name)
+        {
+            m_Name = i_Name;
+            m_isHuman = true;
+            m_Score = 0;
+        }
+        internal int Score
         {
             get
             {
@@ -20,7 +32,7 @@ namespace MemoryGame
             }
         }
 
-        public bool IsHuman
+        internal bool IsHuman
         {
             get
             {
@@ -32,13 +44,16 @@ namespace MemoryGame
             }
         }
 
-        public GameBoard.Position ChooseRandomCellInBoard(GameBoard board)
+        internal string Name
         {
-            Random random = new Random();
-            List<GameBoard.Position> hiddenBoardCells = board.GetCurrentHiddenCells();
-
-            int randomIndex = random.Next(hiddenBoardCells.Count);
-            return hiddenBoardCells[randomIndex];
+            get
+            {
+                return m_Name;
+            }
+            set
+            {
+                m_Name = value;
+            }
         }
     }
 }
