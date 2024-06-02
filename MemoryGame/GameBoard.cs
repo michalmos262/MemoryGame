@@ -172,5 +172,10 @@ namespace MemoryGame
 
             return card1.Number == card2.Number;
         }
+
+        public static bool AreDimensionsValid(int i_NumOfRows, int i_NumOfColumns)
+        {
+            return (i_NumOfRows * i_NumOfColumns) % 2 == 0;
+        }
     }
 }
