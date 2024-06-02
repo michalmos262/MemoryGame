@@ -62,33 +62,33 @@ namespace MemoryGame
             return positionStatus;
         }
 
-        public Player GetWinner()
-        {
-            int maxScore, currentPlayerScore;
-            Player winner;
+        //public Player GetWinner()
+        //{
+        //    int maxScore, currentPlayerScore;
+        //    Player winner;
 
-            if (isGameOver())
-            {
-                winner = m_Players[0];
-                maxScore = m_Players[0].GetNumOfRevealedCards();
+        //    if (isGameOver())
+        //    {
+        //        winner = m_Players[0];
+        //        maxScore = m_Players[0].GetNumOfRevealedCards();
 
-                foreach (Player player in m_Players)
-                {
-                    currentPlayerScore = player.GetNumOfRevealedCards();
-                    if (currentPlayerScore > maxScore)
-                    {
-                        winner = player;
-                        maxScore = currentPlayerScore;
-                    }
-                }
-            }
-            else
-            {
-                winner = null;
-            }
+        //        foreach (Player player in m_Players)
+        //        {
+        //            currentPlayerScore = player.GetNumOfRevealedCards();
+        //            if (currentPlayerScore > maxScore)
+        //            {
+        //                winner = player;
+        //                maxScore = currentPlayerScore;
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        winner = null;
+        //    }
 
-            return winner;
-        }
+        //    return winner;
+        //}
 
         public int GetNumOfPairsInGame()
         {

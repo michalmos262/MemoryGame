@@ -6,6 +6,7 @@ namespace MemoryGame
     {
         private int m_Number;
         private bool m_IsRevealed;
+        private const int k_NotRevealedNumber = 0;
 
         public Card(int i_Number)
         {
@@ -17,7 +18,18 @@ namespace MemoryGame
         {
             get
             {
-                return m_Number;
+                int number;
+
+                if (m_IsRevealed)
+                {
+                    number = m_Number;
+                }
+                else
+                {
+                    number = k_NotRevealedNumber;
+                }
+
+                return number;
             }
         }
 
