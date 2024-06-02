@@ -89,5 +89,10 @@ namespace MemoryGame
 
             return winner;
         }
+
+        public int GetNumOfPairsInGame()
+        {
+            return m_Board.NumOfRows * m_Board.NumOfColumns / 2;
+        }
     }
 }
