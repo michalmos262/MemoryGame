@@ -18,18 +18,7 @@ namespace MemoryGame
         {
             get
             {
-                int number;
-
-                if (m_IsRevealed)
-                {
-                    number = m_Number;
-                }
-                else
-                {
-                    number = k_NotRevealedNumber;
-                }
-
-                return number;
+                return m_IsRevealed ? m_Number : k_NotRevealedNumber;
             }
         }
 
