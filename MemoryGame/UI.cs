@@ -14,7 +14,7 @@ namespace MemoryGame
         private const string k_PossibleCardIcons = "ABCDEFGHIJKLMNOPRSTUVWXYZ";
         private const int k_RevealTimeInMiliseconds = 2000;
 
-        public static void ClearScreen()
+        public void ClearScreen()
         {
             Ex02.ConsoleUtils.Screen.Clear();
         }
@@ -26,7 +26,7 @@ namespace MemoryGame
             printGameBoard(board);
         }
 
-        private static void printColumnLabels(GameBoard board)
+        private void printColumnLabels(GameBoard board)
         {
             Console.Write("   ");
             for (int col = 0; col < board.NumOfColumns; col++)
