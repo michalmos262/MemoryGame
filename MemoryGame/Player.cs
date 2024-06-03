@@ -3,21 +3,13 @@
     public class Player
     {
         private string m_Name;
-        private const string k_ComputerName = "Computer";
         private bool m_isHuman;
         private int m_Score;
 
-        public Player()
-        {
-            m_Name = k_ComputerName;
-            m_isHuman = false;
-            m_Score = 0;
-        }
-
-        public Player(string i_Name)
+        public Player(string i_Name, bool i_IsHuman)
         {
             m_Name = i_Name;
-            m_isHuman = true;
+            m_isHuman = i_IsHuman;
             m_Score = 0;
         }
         internal int Score

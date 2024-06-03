@@ -6,10 +6,6 @@ namespace MemoryGame
     public class GameBoard
     {
         private Card[,] m_Board;
-        private const int k_MinNumOfRows = 4;
-        private const int k_MinNumOfColumns = 4;
-        private const int k_MaxNumOfRows = 6;
-        private const int k_MaxNumOfColumns = 6;
         private int m_NumOfRows;
         private int m_NumOfColumns;
 
@@ -38,38 +34,6 @@ namespace MemoryGame
                 {
                     return m_ColumnIndex;
                 }
-            }
-        }
-
-        public int MinNumOfRows
-        {
-            get
-            {
-                return k_MinNumOfRows;
-            }
-        }
-
-        public int MinNumOfColumns
-        {
-            get
-            {
-                return k_MinNumOfColumns;
-            }
-        }
-
-        public int MaxNumOfRows
-        {
-            get
-            {
-                return k_MaxNumOfRows;
-            }
-        }
-
-        public int MaxNumOfColumns
-        {
-            get
-            {
-                return k_MaxNumOfColumns;
             }
         }
         public int NumOfRows
