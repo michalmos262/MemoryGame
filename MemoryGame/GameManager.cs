@@ -1,35 +1,24 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System;
 
 namespace MemoryGame
 {
-    internal class GameManager
+    public class GameManager
     {
-        private eGameModes m_GameMode;
+        private UI m_UserInterface;
         private GameBoard m_Board;
         private Player[] m_Players;
         private uint m_CurrentPlayerIndex;
         private bool m_IsGameOver;
         private const uint k_NumOfPlayers = 2;
 
-        public GameManager(eGameModes i_GameMode, int i_NumOfRowsInBoard, int i_NumOfColumnsInBoard)
+        public GameManager()
         {
-            m_GameMode = i_GameMode;
-            m_Board = new GameBoard(i_NumOfRowsInBoard, i_NumOfColumnsInBoard);
+            m_UserInterface = new UI();
+            m_Board = null;
             m_CurrentPlayerIndex = 0;
             m_IsGameOver = false;
             m_Players = new Player[k_NumOfPlayers];
-            for (int i = 0; i < k_NumOfPlayers; i++)
-            {
-                m_Players[i] = new Player();
-            }
-        }
-
-        public GameBoard GameBoard
-        {
-            get
-            {
-                return m_Board;
-            }
         }
 
         private void passTurn()
@@ -46,11 +35,11 @@ namespace MemoryGame
         {
             ePositionStatus positionStatus;
 
-            if(!m_Board.IsValidPosition(i_ChosenPosition))
+            if (!m_Board.IsValidPosition(i_ChosenPosition))
             {
                 positionStatus = ePositionStatus.OutsideBoard;
             }
-            else if(m_Board.IsCardRevealed(i_ChosenPosition))
+            else if (m_Board.IsCardRevealed(i_ChosenPosition))
             {
                 positionStatus = ePositionStatus.RevealedPosition;
             }
@@ -62,37 +51,53 @@ namespace MemoryGame
             return positionStatus;
         }
 
-        //public Player GetWinner()
-        //{
-        //    int maxScore, currentPlayerScore;
-        //    Player winner;
-
-        //    if (isGameOver())
-        //    {
-        //        winner = m_Players[0];
-        //        maxScore = m_Players[0].GetNumOfRevealedCards();
-
-        //        foreach (Player player in m_Players)
-        //        {
-        //            currentPlayerScore = player.GetNumOfRevealedCards();
-        //            if (currentPlayerScore > maxScore)
-        //            {
-        //                winner = player;
-        //                maxScore = currentPlayerScore;
-        //            }
-        //        }
-        //    }
-        //    else
-        //    {
-        //        winner = null;
-        //    }
-
-        //    return winner;
-        //}
-
-        public int GetNumOfPairsInGame()
+        public static GameBoard.Position ChooseRandomHiddenCellInBoard(GameBoard board)
         {
-            return m_Board.NumOfRows * m_Board.NumOfColumns / 2;
+            Random random = new Random();
+            List<GameBoard.Position> hiddenBoardCells = board.GetCurrentHiddenCells();
+
+            int randomIndex = random.Next(hiddenBoardCells.Count);
+            return hiddenBoardCells[randomIndex];
+        }
+
+
+        //TODO: RevealCardInBoard
+        public void RevealCardInBoard(GameBoard.Position position)
+        {
+
+        }
+
+        public void SetPlayers()
+        {
+            string firstPlayerName = m_UserInterface.GetPlayerName();
+            m_Players[0] = new Player(firstPlayerName, true);
+            eGameModes gameMode = m_UserInterface.GetGameMode();
+            if (gameMode == eGameModes.HumanVsComputer)
+            {
+                m_Players[1] = new Player("", false);
+            }
+            else
+            {
+                string secondPlayerName = m_UserInterface.GetPlayerName();
+                m_Players[1] = new Player(secondPlayerName, true);
+            }
+        }
+
+        public void SetBoard()
+        {
+            int numOfRows = m_UserInterface.GetBoardNumOfRows();
+            //TODO: verify num of rows is correct logically
+            int numOfColumns = m_UserInterface.GetBoardNumOfColumns();
+            //TODO: verify num of columns is correct logically
+            m_Board = new GameBoard(numOfRows, numOfColumns);
+        }
+
+        public void Play()
+        {
+            SetPlayers();
+            SetBoard();
+            m_UserInterface.ShowGameBoard(m_Board);
+
         }
     }
 }

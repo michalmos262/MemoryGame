@@ -1,9 +1,10 @@
 ﻿
 namespace MemoryGame
 {
-    internal enum eGameModes
+    public enum eGameModes
     {
-        HumanVsHuman = 0,
-        HumanVsComputer = 1
+        ErrorMode = -1,
+        HumanVsComputer = 1,
+        HumanVsHuman = 2
     }
 }
