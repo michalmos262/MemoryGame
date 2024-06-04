@@ -113,13 +113,18 @@ namespace MemoryGame
             return cards;
         }
 
-        public Card RevealCard(Position position)
+        public Card RevealCard(Position i_Position)
         {
-            m_Board[position.RowIndex, position.ColumnIndex].IsRevealed = true;
-            return m_Board[position.RowIndex, position.ColumnIndex];
+            m_Board[i_Position.RowIndex, i_Position.ColumnIndex].IsRevealed = true;
+            return m_Board[i_Position.RowIndex, i_Position.ColumnIndex];
         }
 
-        public void RevealPair(Position i_FirstCardPosition, Position i_SecondCardPosition)
+        public void HideCard(Position i_Position)
+        {
+            m_Board[i_Position.RowIndex, i_Position.ColumnIndex].IsRevealed = false;
+        }
+
+        public void RevealIfPair(Position i_FirstCardPosition, Position i_SecondCardPosition)
         {
             if (IsPair(i_FirstCardPosition, i_SecondCardPosition))
             {
@@ -152,7 +157,12 @@ namespace MemoryGame
 
         public bool IsValidPosition(Position i_Position)
         {
-            return i_Position.RowIndex < m_NumOfRows && i_Position.ColumnIndex < m_NumOfColumns;
+            bool isPositiveInt, isInsideBoard;
+
+            isPositiveInt = i_Position.RowIndex >= 0 && i_Position.ColumnIndex >= 0;
+            isInsideBoard = i_Position.RowIndex < m_NumOfRows && i_Position.ColumnIndex < m_NumOfColumns;
+            
+            return isPositiveInt && isInsideBoard;
         }
 
         public bool IsCardRevealed(Position i_Position)

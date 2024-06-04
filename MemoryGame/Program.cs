@@ -7,9 +7,12 @@ namespace Ex_02
     {
         public static void Main()
         {
-            MemoryGame.GameManager game = new MemoryGame.GameManager();
-
-            game.Play();
+            Card c;
+            GameManager game = new GameManager();
+            game.SetBoardDimensions(4, 4);
+            GameBoard.Position position = new GameBoard.Position(1,2);
+            c = game.RevealCardInBoard(position);
+            Console.WriteLine(c.Number);
         }
         
     }

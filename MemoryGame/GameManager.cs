@@ -10,7 +10,6 @@ namespace MemoryGame
         private uint m_CurrentPlayerIndex;
         private bool m_IsGameOver;
         private const uint k_NumOfPlayers = 2;
-        private eGameModes m_gameMode;
 
         public GameManager()
         {
@@ -18,18 +17,16 @@ namespace MemoryGame
             m_CurrentPlayerIndex = 0;
             m_IsGameOver = false;
             m_Players = new Player[k_NumOfPlayers];
-            m_gameMode = eGameModes.ErrorMode;
         }
 
-        internal eGameModes GameMode
+        public void MakeTurn()
         {
-            get
+            Player activePlayer;
+
+            activePlayer = GetActivePlayer();
+            if (activePlayer != null)
             {
-                return m_gameMode;
-            }
-            set
-            {
-                m_gameMode = value;
+
             }
         }
 
@@ -38,9 +35,60 @@ namespace MemoryGame
             m_CurrentPlayerIndex = (m_CurrentPlayerIndex + 1) % k_NumOfPlayers;
         }
 
+        public Player GetActivePlayer()
+        {
+            Player activePlayer;
+
+            if (wasGameInitialized())
+            {
+                activePlayer = m_Players[m_CurrentPlayerIndex];
+            }
+            else
+            {
+                activePlayer = null;
+            }
+
+            return activePlayer;
+        }
+
         private bool isGameOver()
         {
-            return m_Board.AreAllCardsRevealed();
+            m_IsGameOver = m_Board.AreAllCardsRevealed();
+
+            return m_IsGameOver;
+        }
+
+        public Player GetWinner()
+        {
+            Player winner;
+
+            if (isGameOver())
+            {
+                winner = getPlayerWithHighestScore();
+            }
+            else
+            {
+                winner = null;
+            }
+
+            return winner;
+        }
+
+        private Player getPlayerWithHighestScore()
+        {
+            int maxScore = m_Players[0].Score;
+            Player playerWithHighestScore = m_Players[0];
+
+            foreach (Player player in m_Players)
+            {
+                if (player.Score > maxScore)
+                {
+                    maxScore = player.Score;
+                    playerWithHighestScore = player;
+                }
+            }
+
+            return playerWithHighestScore;
         }
 
         public ePositionStatus GetPositionChoiceStatus(GameBoard.Position i_ChosenPosition)
@@ -73,25 +121,36 @@ namespace MemoryGame
         }
 
 
-        //TODO: RevealCardInBoard
-        public void RevealCardInBoard(GameBoard.Position position)
+        public Card RevealCardInBoard(GameBoard.Position i_Position)
         {
+            Card RevealedCard = new Card(Card.k_InvalidCard);
 
+            if (GetPositionChoiceStatus(i_Position) is ePositionStatus.Valid)
+            {
+                RevealedCard = m_Board.RevealCard(i_Position);
+            }
+
+            return RevealedCard;
         }
 
-        public void SetPlayers(string i_firstPlayerName, string i_secondPlayerName)
+        public void HideCardInBoard(GameBoard.Position i_Position)
         {
-            m_Players[0] = new Player(i_firstPlayerName, true);
-            if (m_gameMode == eGameModes.HumanVsComputer)
+            if (GetPositionChoiceStatus(i_Position) is ePositionStatus.Valid)
             {
-                m_Players[1] = new Player("", false);
-            }
-            else
-            {
-                m_Players[1] = new Player(i_secondPlayerName, true);
+                m_Board.HideCard(i_Position);
             }
         }
 
+        public void SetPlayers(string[] i_Names, bool[] i_isHumanArray)
+        {
+            if (i_Names.Length == i_isHumanArray.Length)
+            {
+                for (int i = 0; i < i_Names.Length; i++)
+                {
+                    m_Players[i] = new Player(i_Names[i], i_isHumanArray[i]);
+                }
+            }
+        }
 
         public void SetBoardDimensions(int i_numOfRows, int i_numOfColumns)
         {
@@ -103,8 +162,17 @@ namespace MemoryGame
 
         private bool areBoardDimensionsValid(int i_numOfRows, int i_numOfColumns)
         {
-            return (i_numOfRows * i_numOfColumns) % 2 == 0;
+            return GameBoard.AreDimensionsValid(i_numOfRows, i_numOfColumns);
         }
 
+        public void RevealIfPair(GameBoard.Position i_FirstCardPosition, GameBoard.Position i_SecondCardPosition)
+        {
+            m_Board.RevealIfPair(i_FirstCardPosition, i_SecondCardPosition);
+        }
+
+        private bool wasGameInitialized()
+        {
+            return m_Board == null;
+        }
     }
 }
