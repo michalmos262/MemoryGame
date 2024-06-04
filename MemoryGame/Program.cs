@@ -7,7 +7,7 @@ namespace Ex_02
     {
         public static void Main()
         {
-            MemoryGame.MemoryGame game = new MemoryGame.MemoryGame();
+            MemoryGame.GameManager game = new MemoryGame.GameManager();
 
             game.Play();
         }

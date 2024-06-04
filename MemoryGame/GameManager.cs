@@ -5,20 +5,32 @@ namespace MemoryGame
 {
     public class GameManager
     {
-        private UI m_UserInterface;
         private GameBoard m_Board;
         private Player[] m_Players;
         private uint m_CurrentPlayerIndex;
         private bool m_IsGameOver;
         private const uint k_NumOfPlayers = 2;
+        private eGameModes m_gameMode;
 
         public GameManager()
         {
-            m_UserInterface = new UI();
             m_Board = null;
             m_CurrentPlayerIndex = 0;
             m_IsGameOver = false;
             m_Players = new Player[k_NumOfPlayers];
+            m_gameMode = eGameModes.ErrorMode;
+        }
+
+        internal eGameModes GameMode
+        {
+            get
+            {
+                return m_gameMode;
+            }
+            set
+            {
+                m_gameMode = value;
+            }
         }
 
         private void passTurn()
@@ -67,37 +79,32 @@ namespace MemoryGame
 
         }
 
-        public void SetPlayers()
+        public void SetPlayers(string i_firstPlayerName, string i_secondPlayerName)
         {
-            string firstPlayerName = m_UserInterface.GetPlayerName();
-            m_Players[0] = new Player(firstPlayerName, true);
-            eGameModes gameMode = m_UserInterface.GetGameMode();
-            if (gameMode == eGameModes.HumanVsComputer)
+            m_Players[0] = new Player(i_firstPlayerName, true);
+            if (m_gameMode == eGameModes.HumanVsComputer)
             {
                 m_Players[1] = new Player("", false);
             }
             else
             {
-                string secondPlayerName = m_UserInterface.GetPlayerName();
-                m_Players[1] = new Player(secondPlayerName, true);
+                m_Players[1] = new Player(i_secondPlayerName, true);
             }
         }
 
-        public void SetBoard()
+
+        public void SetBoardDimensions(int i_numOfRows, int i_numOfColumns)
         {
-            int numOfRows = m_UserInterface.GetBoardNumOfRows();
-            //TODO: verify num of rows is correct logically
-            int numOfColumns = m_UserInterface.GetBoardNumOfColumns();
-            //TODO: verify num of columns is correct logically
-            m_Board = new GameBoard(numOfRows, numOfColumns);
+            if (areBoardDimensionsValid(i_numOfRows, i_numOfColumns))
+            {
+                m_Board = new GameBoard(i_numOfRows, i_numOfColumns);
+            }
         }
 
-        public void Play()
+        private bool areBoardDimensionsValid(int i_numOfRows, int i_numOfColumns)
         {
-            SetPlayers();
-            SetBoard();
-            m_UserInterface.ShowGameBoard(m_Board);
-
+            return (i_numOfRows * i_numOfColumns) % 2 == 0;
         }
+
     }
 }
