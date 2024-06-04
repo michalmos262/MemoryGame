@@ -177,7 +177,7 @@ namespace MemoryGame
             return currentHiddenBoardCells.Count == 0;
         }
 
-        public bool IsPair(Position i_FirstCardPosition, Position i_SecondCardPosition)
+        public bool IsPairAtPositions(Position i_FirstCardPosition, Position i_SecondCardPosition)
         {
             Card firstCard, secondCard;
 

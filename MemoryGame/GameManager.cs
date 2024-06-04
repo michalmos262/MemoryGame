@@ -19,14 +19,32 @@ namespace MemoryGame
             m_Players = new Player[k_NumOfPlayers];
         }
 
-        public void MakeTurn()
+        public void MakeActivePlayerFirstTurn(GameBoard.Position i_FirstCardPosition)
         {
             Player activePlayer;
 
             activePlayer = GetActivePlayer();
             if (activePlayer != null)
             {
+                revealCardInBoard(i_FirstCardPosition);
+            }
+        }
 
+        public void MakeActivePlayerSecondTurn(GameBoard.Position i_FirstCardPosition, GameBoard.Position i_SecondCardPosition)
+        {
+            Player activePlayer;
+            activePlayer = GetActivePlayer();
+            if (activePlayer != null)
+            {
+                if (isPairAtPositions(i_FirstCardPosition, i_SecondCardPosition))
+                {
+                    revealPairAtPositions(i_FirstCardPosition, i_SecondCardPosition);
+                    activePlayer.Score++;
+                }
+                else
+                {
+                    passTurn();
+                }
             }
         }
 
@@ -121,19 +139,25 @@ namespace MemoryGame
         }
 
 
-        public Card RevealCardInBoard(GameBoard.Position i_Position)
+        private Card revealCardInBoard(GameBoard.Position i_Position)
         {
-            Card RevealedCard = new Card(Card.k_InvalidCard);
+            Card revealedCard = new Card(Card.k_InvalidCard);
 
             if (GetPositionChoiceStatus(i_Position) is ePositionStatus.Valid)
             {
-                RevealedCard = m_Board.RevealCard(i_Position);
+                revealedCard = m_Board.RevealCard(i_Position);
             }
 
-            return RevealedCard;
+            return revealedCard;
         }
 
-        public void HideCardInBoard(GameBoard.Position i_Position)
+        public void hidePairInBoard(GameBoard.Position i_FirstCardPosition, GameBoard.Position i_SecondCardPosition)
+        {
+            hideCardInBoard(i_FirstCardPosition);
+            hideCardInBoard(i_SecondCardPosition);
+        }
+
+        private void hideCardInBoard(GameBoard.Position i_Position)
         {
             if (GetPositionChoiceStatus(i_Position) is ePositionStatus.Valid)
             {
@@ -165,7 +189,12 @@ namespace MemoryGame
             return GameBoard.AreDimensionsValid(i_numOfRows, i_numOfColumns);
         }
 
-        public void RevealIfPair(GameBoard.Position i_FirstCardPosition, GameBoard.Position i_SecondCardPosition)
+        private bool isPairAtPositions(GameBoard.Position i_FirstCardPosition, GameBoard.Position i_SecondCardPosition)
+        {
+            return m_Board.IsPairAtPositions(i_FirstCardPosition, i_SecondCardPosition);
+        }
+
+        private void revealPairAtPositions(GameBoard.Position i_FirstCardPosition, GameBoard.Position i_SecondCardPosition)
         {
             m_Board.RevealIfPair(i_FirstCardPosition, i_SecondCardPosition);
         }
