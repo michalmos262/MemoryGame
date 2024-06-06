@@ -7,7 +7,7 @@ namespace Ex_02
     {
         public static void Main()
         {
-            ConsoleInteraction game = new ConsoleInteraction();
+            UI.UI game = new UI.UI();
             game.Play();
         }
 

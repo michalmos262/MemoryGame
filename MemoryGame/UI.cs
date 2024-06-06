@@ -4,7 +4,7 @@ using MemoryGame;
 
 namespace UI
 {
-    public class ConsoleInteraction
+    public class UI
     {
         private GameManager m_GameManager;
         private const string k_ComputerName = "Computer";
@@ -19,7 +19,7 @@ namespace UI
         private const uint k_PossibleNumOfCardsToReveal = 2;
         private const int k_RevealTimeInMilliseconds = 2000;
 
-        public ConsoleInteraction()
+        public UI()
         {
             m_GameManager = new GameManager();
         }
