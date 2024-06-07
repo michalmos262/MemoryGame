@@ -361,6 +361,7 @@ namespace UI
 
         private void makePlayerTurn()
         {
+            //TODO: UI should not know who plays, need to fix
             Player currentPlayer = m_GameManager.GetActivePlayer();
             Console.WriteLine($"{currentPlayer.Name}'s turn:");
             GameBoard.Position[] chosenBoardPositions;
