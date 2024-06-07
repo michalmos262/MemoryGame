@@ -6,6 +6,7 @@ namespace MemoryGame
     {
         private int m_Number;
         private bool m_IsRevealed;
+        public static int k_InvalidCardIndicator = -1;
 
         public Card(int i_Number)
         {

@@ -1,4 +1,4 @@
-﻿using MemoryGame;
+﻿using UI;
 using System;
 
 namespace Ex_02
@@ -7,10 +7,12 @@ namespace Ex_02
     {
         public static void Main()
         {
-            MemoryGame.MemoryGame game = new MemoryGame.MemoryGame();
-
+            UI.UI game = new UI.UI();
             game.Play();
         }
-        
+
     }
 }
+//TODO: delete redundant functions
+//TODO: delete redundant usings
+

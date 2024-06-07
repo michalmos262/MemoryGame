@@ -6,8 +6,8 @@ namespace MemoryGame
     public class GameBoard
     {
         private Card[,] m_Board;
-        private int m_NumOfRows;
-        private int m_NumOfColumns;
+        private uint m_NumOfRows;
+        private uint m_NumOfColumns;
 
         public struct Position
         {
@@ -26,6 +26,10 @@ namespace MemoryGame
                 {
                     return m_RowIndex;
                 }
+                set
+                {
+                    m_RowIndex = value;
+                }
             }
 
             public int ColumnIndex
@@ -36,7 +40,7 @@ namespace MemoryGame
                 }
             }
         }
-        public int NumOfRows
+        public uint NumOfRows
         {
             get
             {
@@ -44,7 +48,7 @@ namespace MemoryGame
             }
         }
 
-        public int NumOfColumns
+        public uint NumOfColumns
         {
             get
             {
@@ -60,12 +64,12 @@ namespace MemoryGame
             }
         }
 
-        public int GetNumOfCardPairs()
+        public uint GetNumOfCardPairs()
         {
             return m_NumOfRows * m_NumOfColumns / 2;
         }
 
-        public GameBoard(int i_NumOfRows, int i_NumOfColumns)
+        public GameBoard(uint i_NumOfRows, uint i_NumOfColumns)
         {
             m_NumOfRows = i_NumOfRows;
             m_NumOfColumns = i_NumOfColumns;
@@ -100,8 +104,8 @@ namespace MemoryGame
         }
         private Card[] generateRandomCards()
         {
-            int numOfCards = m_NumOfRows * m_NumOfColumns;
-            int numOfPairs = numOfCards / 2;
+            uint numOfCards = m_NumOfRows * m_NumOfColumns;
+            uint numOfPairs = numOfCards / 2;
             Card[] cards = new Card[numOfCards];
 
             for (int i = 0; i < numOfPairs; i++)
@@ -113,18 +117,28 @@ namespace MemoryGame
             return cards;
         }
 
-        public Card RevealCard(Position position)
+        public Card RevealCard(Position i_Position)
         {
-            m_Board[position.RowIndex, position.ColumnIndex].IsRevealed = true;
-            return m_Board[position.RowIndex, position.ColumnIndex];
+            m_Board[i_Position.RowIndex, i_Position.ColumnIndex].IsRevealed = true;
+            return m_Board[i_Position.RowIndex, i_Position.ColumnIndex];
         }
 
-        public void RevealPair(Position i_FirstCardPosition, Position i_SecondCardPosition)
+        public void HideCard(Position i_Position)
         {
-            if (IsPair(i_FirstCardPosition, i_SecondCardPosition))
+            m_Board[i_Position.RowIndex, i_Position.ColumnIndex].IsRevealed = false;
+        }
+
+        public void RevealIfPair(Position i_FirstCardPosition, Position i_SecondCardPosition)
+        {
+            if (IsValidPairAtPositions(i_FirstCardPosition, i_SecondCardPosition))
             {
                 RevealCard(i_FirstCardPosition);
                 RevealCard(i_SecondCardPosition);
+            }
+            else
+            {
+                HideCard(i_FirstCardPosition);
+                HideCard(i_SecondCardPosition);
             }
         }
 
@@ -150,7 +164,7 @@ namespace MemoryGame
             return currentHiddenBoardCells;
         }
 
-        public bool IsValidPosition(Position i_Position)
+        public bool IsPositionInRange(Position i_Position)
         {
             return i_Position.RowIndex < m_NumOfRows && i_Position.ColumnIndex < m_NumOfColumns;
         }
@@ -167,7 +181,7 @@ namespace MemoryGame
             return currentHiddenBoardCells.Count == 0;
         }
 
-        public bool IsPair(Position i_FirstCardPosition, Position i_SecondCardPosition)
+        public bool IsValidPairAtPositions(Position i_FirstCardPosition, Position i_SecondCardPosition)
         {
             Card firstCard, secondCard;
 
@@ -177,7 +191,7 @@ namespace MemoryGame
             return firstCard.Number == secondCard.Number;
         }
 
-        public static bool AreDimensionsValid(int i_NumOfRows, int i_NumOfColumns)
+        public static bool AreDimensionsValid(uint i_NumOfRows, uint i_NumOfColumns)
         {
             return (i_NumOfRows * i_NumOfColumns) % 2 == 0;
         }
