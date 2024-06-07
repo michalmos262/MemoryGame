@@ -126,7 +126,7 @@ namespace MemoryGame
 
         public void RevealIfPair(Position i_FirstCardPosition, Position i_SecondCardPosition)
         {
-            if (IsPair(i_FirstCardPosition, i_SecondCardPosition))
+            if (IsPairAtPositions(i_FirstCardPosition, i_SecondCardPosition))
             {
                 RevealCard(i_FirstCardPosition);
                 RevealCard(i_SecondCardPosition);

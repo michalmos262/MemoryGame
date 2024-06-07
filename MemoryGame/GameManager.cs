@@ -129,10 +129,10 @@ namespace MemoryGame
             return positionStatus;
         }
 
-        public static GameBoard.Position ChooseRandomHiddenCellInBoard(GameBoard board)
+        public static GameBoard.Position ChooseRandomHiddenCellInBoard(GameBoard i_Board)
         {
             Random random = new Random();
-            List<GameBoard.Position> hiddenBoardCells = board.GetCurrentHiddenCells();
+            List<GameBoard.Position> hiddenBoardCells = i_Board.GetCurrentHiddenCells();
 
             int randomIndex = random.Next(hiddenBoardCells.Count);
             return hiddenBoardCells[randomIndex];
@@ -141,7 +141,7 @@ namespace MemoryGame
 
         private Card revealCardInBoard(GameBoard.Position i_Position)
         {
-            Card revealedCard = new Card(Card.k_InvalidCard);
+            Card revealedCard = new Card(Card.k_InvalidCardIndicator);
 
             if (GetPositionChoiceStatus(i_Position) is ePositionStatus.Valid)
             {
@@ -176,17 +176,17 @@ namespace MemoryGame
             }
         }
 
-        public void SetBoardDimensions(int i_numOfRows, int i_numOfColumns)
+        public void SetBoardDimensions(int i_NumOfRows, int i_NumOfColumns)
         {
-            if (areBoardDimensionsValid(i_numOfRows, i_numOfColumns))
+            if (areBoardDimensionsValid(i_NumOfRows, i_NumOfColumns))
             {
-                m_Board = new GameBoard(i_numOfRows, i_numOfColumns);
+                m_Board = new GameBoard(i_NumOfRows, i_NumOfColumns);
             }
         }
 
-        private bool areBoardDimensionsValid(int i_numOfRows, int i_numOfColumns)
+        private bool areBoardDimensionsValid(int i_NumOfRows, int i_NumOfColumns)
         {
-            return GameBoard.AreDimensionsValid(i_numOfRows, i_numOfColumns);
+            return GameBoard.AreDimensionsValid(i_NumOfRows, i_NumOfColumns);
         }
 
         private bool isPairAtPositions(GameBoard.Position i_FirstCardPosition, GameBoard.Position i_SecondCardPosition)
