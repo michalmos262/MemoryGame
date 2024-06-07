@@ -406,6 +406,7 @@ namespace UI
                 Console.WriteLine("BYE");
             }
             //TODO: print winner/tie
+            //TODO: ask user for new game
         }
     }
 }
