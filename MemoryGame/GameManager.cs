@@ -228,11 +228,6 @@ namespace MemoryGame
             }
         }
 
-        private void revealPairAtPositions(GameBoard.Position i_FirstCardPosition, GameBoard.Position i_SecondCardPosition)
-        {
-            m_Board.RevealIfPair(i_FirstCardPosition, i_SecondCardPosition);
-        }
-
         private bool wasGameInitialized()
         {
             return m_Board != null;

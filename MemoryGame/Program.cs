@@ -1,7 +1,4 @@
-﻿using UI;
-using System;
-
-namespace Ex_02
+﻿namespace Ex_02
 {
     public class Program
     {
