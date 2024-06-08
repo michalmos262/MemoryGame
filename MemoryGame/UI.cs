@@ -79,12 +79,12 @@ namespace UI
 
         private void sleep(int i_RevealTimeInMilliseconds = k_RevealTimeInMilliseconds)
         {
-            System.Threading.Thread.Sleep(k_RevealTimeInMilliseconds);
+            System.Threading.Thread.Sleep(i_RevealTimeInMilliseconds);
         }
 
         public string GetPlayerName(int playerIndex)
         {
-            Console.WriteLine($"Please the name of player {playerIndex}:" );
+            Console.WriteLine($"Please the name of player {playerIndex + 1}:" );
             string name = Console.ReadLine();
 
             return name;
@@ -92,15 +92,16 @@ namespace UI
 
         public eGameModes GetGameMode()
         {
+            uint optionNumberFromUser;
+            string userInput;
+            bool isOptionNumber;
+
             Console.WriteLine($"Who do you want to play with? Please insert the right option number:\n" +
                               $"({(int)eGameModes.HumanVsComputer}) Computer\n" +
                               $"({(int)eGameModes.HumanVsHuman}) Another player");
-
-            uint optionNumberFromUser;
-            string userInput = Console.ReadLine();
-            bool isOptionNumber = uint.TryParse(userInput, out optionNumberFromUser);
-
-            while (!isOptionNumber || (optionNumberFromUser != (int)eGameModes.HumanVsHuman && optionNumberFromUser != (int)eGameModes.HumanVsComputer))
+            userInput = Console.ReadLine();
+            isOptionNumber = uint.TryParse(userInput, out optionNumberFromUser);
+            while (!isOptionNumber || !isValidGameMode((eGameModes)optionNumberFromUser))
             {
                 Console.WriteLine("Wrong input! Please try again:");
                 userInput = Console.ReadLine();
@@ -110,6 +111,11 @@ namespace UI
             eGameModes gameMode = (eGameModes)optionNumberFromUser;
 
             return gameMode;
+        }
+
+        private bool isValidGameMode(eGameModes i_GameMode)
+        {
+            return i_GameMode == eGameModes.HumanVsHuman || i_GameMode == eGameModes.HumanVsComputer;
         }
 
         public uint GetBoardNumOfRows()
@@ -151,35 +157,26 @@ namespace UI
         private bool isValidPositionFormat(string i_UserInput)
         {
             bool isValidPosition = false;
-            bool isRightLength = i_UserInput.Length == 2;
-            
+            bool isFirstLetterCharacter = char.IsUpper(i_UserInput[0]);
+            string inputWithoutFirstChar = i_UserInput.Substring(1);
+            bool isDigitAfterCharacter = int.TryParse(inputWithoutFirstChar, out _);
 
-            if (isRightLength)
+            if (isFirstLetterCharacter && isDigitAfterCharacter)
             {
-                bool isFirstLetterCharacter = char.IsUpper(i_UserInput[0]);
-                bool isSecondLetterDigit = char.IsDigit(i_UserInput[1]);//TODO: position P100 should be range error
-                if (isFirstLetterCharacter && isSecondLetterDigit)
+                GameBoard.Position position = getTextConvertedToPosition(i_UserInput);
+                adjustPositionToLogics(ref position);
+                ePositionStatus positionStatus = m_GameManager.GetPositionChoiceStatus(position);
+                if (positionStatus == ePositionStatus.RevealedPosition)
                 {
-                    GameBoard.Position position = getTextConvertedToPosition(i_UserInput);
-                    adjustPositionToLogics(ref position);
-                    ePositionStatus positionStatus = m_GameManager.GetPositionChoiceStatus(position);
-                    if (positionStatus == ePositionStatus.RevealedPosition)
-                    {
-                        PrintPositionAlreadyRevealed(i_UserInput);//TODO: doesn't work, need to understand what happens in the manager, looks like it doesn't update the status of the positions
-                    }
-
-                    if (positionStatus == ePositionStatus.OutsideBoard)
-                    {
-                        PrintPositionNotInBoardRange(i_UserInput);
-                    }
-                    else
-                    {
-                        isValidPosition = true;
-                    }
+                    PrintPositionAlreadyRevealed(i_UserInput);
+                }
+                else if (positionStatus == ePositionStatus.OutsideBoard)
+                {
+                    PrintPositionNotInBoardRange(i_UserInput);
                 }
                 else
                 {
-                    PrintPositionInputNotInsertedCorrectly(i_UserInput);
+                    isValidPosition = true;
                 }
             }
             else
@@ -272,7 +269,7 @@ namespace UI
             string[] playerNames = new string[m_GameManager.NumOfPlayers];
             bool[] arePlayersHumans = new bool[m_GameManager.NumOfPlayers];
 
-            playerNames[0] = GetPlayerName(1);
+            playerNames[0] = GetPlayerName(0);
             arePlayersHumans[0] = true;
             eGameModes gameMode = GetGameMode();
 
@@ -280,7 +277,7 @@ namespace UI
             {
                 if (gameMode == eGameModes.HumanVsHuman)
                 {
-                    playerNames[i] = GetPlayerName(i + 1);
+                    playerNames[i] = GetPlayerName(i);
                     arePlayersHumans[i] = true;
                 }
                 else
@@ -365,6 +362,7 @@ namespace UI
             Player currentPlayer = m_GameManager.GetActivePlayer();
             Console.WriteLine($"{currentPlayer.Name}'s turn:");
             GameBoard.Position[] chosenBoardPositions;
+            bool isPairFound;
 
             if (currentPlayer.IsHuman)
             {
@@ -377,23 +375,40 @@ namespace UI
 
             if (!m_IsQuit)
             {
-                bool isPairFound = m_GameManager.MakeActivePlayerSecondTurn(chosenBoardPositions[0], chosenBoardPositions[1]);
+                m_GameManager.MakeActivePlayerSecondTurn(chosenBoardPositions[0], chosenBoardPositions[1]);
+                isPairFound = m_GameManager.Board.IsValidPairAtPositions(chosenBoardPositions[0], chosenBoardPositions[1]);
                 ClearScreen();
-                ShowGameBoard();
-                if (!isPairFound)
+                if(isPairFound)
                 {
+                    ShowGameBoard();
+                }
+                else
+                {
+                    m_GameManager.RevealCardInBoard(chosenBoardPositions[0]);
+                    m_GameManager.RevealCardInBoard(chosenBoardPositions[1]);
+                    ShowGameBoard();
                     sleep();
-                    m_GameManager.HidePairInBoardAndPassTurn(chosenBoardPositions[0], chosenBoardPositions[1]);
+                    m_GameManager.HidePairInBoard(chosenBoardPositions[0], chosenBoardPositions[1]);
                     ClearScreen();
                     ShowGameBoard();
                 }
             }
         }
 
-        public void Play()
+        private void start()
         {
             setPlayers();
             setBoard();
+        }
+
+        public void StartGameAndPlay()
+        {
+            start();
+            Play();
+        }
+
+        public void Play()
+        {
             ShowGameBoard();
 
             

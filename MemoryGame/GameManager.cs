@@ -45,7 +45,7 @@ namespace MemoryGame
             }
         }
 
-        public bool MakeActivePlayerSecondTurn(GameBoard.Position i_FirstCardPosition, GameBoard.Position i_SecondCardPosition)
+        public void MakeActivePlayerSecondTurn(GameBoard.Position i_FirstCardPosition, GameBoard.Position i_SecondCardPosition)
         {
             Player activePlayer = GetActivePlayer();
             bool isValidPair = false;
@@ -59,20 +59,17 @@ namespace MemoryGame
                 {
                     activePlayer.Score++;
                 }
+                else
+                {
+                    HidePairInBoard(i_FirstCardPosition, i_SecondCardPosition);
+                    passTurn();
+                }
             }
-
-            return isValidPair;
         }
 
         private void passTurn()
         {
             m_CurrentPlayerIndex = (m_CurrentPlayerIndex + 1) % k_NumOfPlayers;
-        }
-
-        public void HidePairInBoardAndPassTurn(GameBoard.Position i_FirstCardPosition, GameBoard.Position i_SecondCardPosition)
-        {
-            hidePairInBoard(i_FirstCardPosition, i_SecondCardPosition);
-            passTurn();
         }
 
         public Player GetActivePlayer()
@@ -175,7 +172,7 @@ namespace MemoryGame
             return revealedCard;
         }
 
-        public void hidePairInBoard(GameBoard.Position i_FirstCardPosition, GameBoard.Position i_SecondCardPosition)
+        public void HidePairInBoard(GameBoard.Position i_FirstCardPosition, GameBoard.Position i_SecondCardPosition)
         {
             hideCardInBoard(i_FirstCardPosition);
             hideCardInBoard(i_SecondCardPosition);
@@ -217,5 +214,6 @@ namespace MemoryGame
         {
             return m_Board != null;
         }
+
     }
 }

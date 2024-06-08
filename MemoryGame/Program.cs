@@ -8,7 +8,7 @@ namespace Ex_02
         public static void Main()
         {
             UI.UI game = new UI.UI();
-            game.Play();
+            game.StartGameAndPlay();
         }
 
     }
