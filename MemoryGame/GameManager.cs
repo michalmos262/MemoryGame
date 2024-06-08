@@ -35,6 +35,13 @@ namespace MemoryGame
             }
         }
 
+        public bool IsGameOver
+        {
+            get
+            {
+                return m_IsGameOver;
+            }
+        }
         public void MakeActivePlayerFirstTurn(GameBoard.Position i_FirstCardPosition)
         {
             Player activePlayer = GetActivePlayer();
@@ -48,7 +55,7 @@ namespace MemoryGame
         public void MakeActivePlayerSecondTurn(GameBoard.Position i_FirstCardPosition, GameBoard.Position i_SecondCardPosition)
         {
             Player activePlayer = GetActivePlayer();
-            bool isValidPair = false;
+            bool isValidPair;
 
             if (activePlayer != null)
             {
@@ -58,11 +65,13 @@ namespace MemoryGame
                 if (isValidPair)
                 {
                     activePlayer.Score++;
+                    m_IsGameOver = m_Board.AreAllCardsRevealed(); // Update the status of the game MAYBE CHANGE PLACE OF THIS LINE??
                 }
                 else
                 {
                     HidePairInBoard(i_FirstCardPosition, i_SecondCardPosition);
                     passTurn();
+                    handleTurnIfComputer();
                 }
             }
         }
@@ -70,6 +79,20 @@ namespace MemoryGame
         private void passTurn()
         {
             m_CurrentPlayerIndex = (m_CurrentPlayerIndex + 1) % k_NumOfPlayers;
+        }
+
+        private void handleTurnIfComputer()
+        {
+            Player activePlayer = GetActivePlayer();
+            GameBoard.Position firstCardPosition, secondCardPosition;
+
+            if (activePlayer.IsHuman is false)
+            {
+                firstCardPosition = ChooseRandomHiddenCellInBoard();
+                MakeActivePlayerFirstTurn(firstCardPosition);
+                secondCardPosition = ChooseRandomHiddenCellInBoard();
+                MakeActivePlayerSecondTurn(firstCardPosition, secondCardPosition);
+            }
         }
 
         public Player GetActivePlayer()
@@ -214,6 +237,5 @@ namespace MemoryGame
         {
             return m_Board != null;
         }
-
     }
 }
