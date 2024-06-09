@@ -7,9 +7,5 @@
             UI.UI game = new UI.UI();
             game.StartGameAndPlay();
         }
-
     }
 }
-//TODO: delete redundant functions
-//TODO: delete redundant usings
-

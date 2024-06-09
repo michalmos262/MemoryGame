@@ -10,6 +10,7 @@ namespace MemoryGame
         private uint m_CurrentPlayerIndex;
         private bool m_IsGameOver;
         private const uint k_NumOfPlayers = 2;
+        private bool m_isInputNeeded;
 
         public GameManager()
         {
@@ -17,6 +18,7 @@ namespace MemoryGame
             m_CurrentPlayerIndex = 0;
             m_IsGameOver = false;
             m_Players = new Player[k_NumOfPlayers];
+            m_isInputNeeded = true;
         }
 
         public GameBoard Board
@@ -42,36 +44,55 @@ namespace MemoryGame
                 return m_IsGameOver;
             }
         }
-        public void MakeActivePlayerFirstTurn(GameBoard.Position i_FirstCardPosition)
+
+        public bool IsInputNeeded
+        {
+            get
+            {
+                return m_isInputNeeded;
+            }
+        }
+
+        public void MakeActivePlayerFirstTurn(ref GameBoard.Position io_FirstCardPosition)
         {
             Player activePlayer = GetActivePlayer();
 
             if (activePlayer != null)
             {
-                RevealCardInBoard(i_FirstCardPosition);
+                if (!activePlayer.IsHuman)
+                {
+                    io_FirstCardPosition = ChooseRandomHiddenCellInBoard();
+                }
+
+                RevealCardInBoard(io_FirstCardPosition);
             }
         }
 
-        public void MakeActivePlayerSecondTurn(GameBoard.Position i_FirstCardPosition, GameBoard.Position i_SecondCardPosition)
+        public void MakeActivePlayerSecondTurn(ref GameBoard.Position io_FirstCardPosition, ref GameBoard.Position io_SecondCardPosition)
         {
             Player activePlayer = GetActivePlayer();
             bool isValidPair;
 
             if (activePlayer != null)
             {
-                RevealCardInBoard(i_SecondCardPosition);
-                isValidPair = m_Board.IsValidPairAtPositions(i_FirstCardPosition, i_SecondCardPosition);
+                if (!activePlayer.IsHuman)
+                {
+                    io_SecondCardPosition = ChooseRandomHiddenCellInBoard();
+                }
+
+                RevealCardInBoard(io_SecondCardPosition);
+                isValidPair = m_Board.IsValidPairAtPositions(io_FirstCardPosition, io_SecondCardPosition);
 
                 if (isValidPair)
                 {
                     activePlayer.Score++;
-                    m_IsGameOver = m_Board.AreAllCardsRevealed(); // Update the status of the game MAYBE CHANGE PLACE OF THIS LINE??
+                    m_IsGameOver = m_Board.AreAllCardsRevealed();
                 }
                 else
                 {
-                    HidePairInBoard(i_FirstCardPosition, i_SecondCardPosition);
+                    HidePairInBoard(io_FirstCardPosition, io_SecondCardPosition);
                     passTurn();
-                    handleTurnIfComputer();
+                    m_isInputNeeded = !m_isInputNeeded;
                 }
             }
         }
@@ -79,20 +100,6 @@ namespace MemoryGame
         private void passTurn()
         {
             m_CurrentPlayerIndex = (m_CurrentPlayerIndex + 1) % k_NumOfPlayers;
-        }
-
-        private void handleTurnIfComputer()
-        {
-            Player activePlayer = GetActivePlayer();
-            GameBoard.Position firstCardPosition, secondCardPosition;
-
-            if (activePlayer.IsHuman is false)
-            {
-                firstCardPosition = ChooseRandomHiddenCellInBoard();
-                MakeActivePlayerFirstTurn(firstCardPosition);
-                secondCardPosition = ChooseRandomHiddenCellInBoard();
-                MakeActivePlayerSecondTurn(firstCardPosition, secondCardPosition);
-            }
         }
 
         public Player GetActivePlayer()
@@ -175,7 +182,6 @@ namespace MemoryGame
         {
             Random random = new Random();
             List<GameBoard.Position> hiddenBoardCells = m_Board.GetCurrentHiddenCells();
-
             int randomIndex = random.Next(hiddenBoardCells.Count);
 
             return hiddenBoardCells[randomIndex];

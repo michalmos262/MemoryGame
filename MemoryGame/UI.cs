@@ -13,9 +13,9 @@ namespace UI
         private const uint k_BoardMaxNumOfColumns = 6;
         private const string k_QuitButton = "Q";
         private const string k_ReplayRequest = "YES";
-        private bool m_IsQuit = false;
         private const uint k_PossibleNumOfCardsToReveal = 2;
         private const int k_RevealTimeInMilliseconds = 2000;
+        private bool m_IsQuit;
 
         private void clearScreen()
         {
@@ -50,6 +50,7 @@ namespace UI
             for (int row = 0; row < m_GameManager.Board.NumOfRows; row++)
             {
                 Console.Write($"{row + 1} | ");
+
                 for (int col = 0; col < m_GameManager.Board.NumOfColumns; col++)
                 {
                     GameBoard.Position position = new GameBoard.Position(row, col);
@@ -96,12 +97,14 @@ namespace UI
                               $"({(int)eGameModes.HumanVsHuman}) Another player");
             userInput = Console.ReadLine();
             isOptionNumber = uint.TryParse(userInput, out optionNumberFromUser);
+
             while (!isOptionNumber || !isValidGameMode((eGameModes)optionNumberFromUser))
             {
                 Console.WriteLine("Wrong input! Please try again:");
                 userInput = Console.ReadLine();
                 isOptionNumber = uint.TryParse(userInput, out optionNumberFromUser);
             }
+
             eGameModes gameMode = (eGameModes)optionNumberFromUser;
 
             return gameMode;
@@ -160,6 +163,7 @@ namespace UI
                 GameBoard.Position position = getTextConvertedToPosition(i_UserInput);
                 adjustPositionToLogics(ref position);
                 ePositionStatus positionStatus = m_GameManager.GetPositionChoiceStatus(position);
+
                 if (positionStatus == ePositionStatus.RevealedPosition)
                 {
                     printPositionAlreadyRevealed(i_UserInput);
@@ -191,28 +195,20 @@ namespace UI
             return i_NumOfBoardColumns >= k_BoardMinNumOfColumns && i_NumOfBoardColumns <= k_BoardMaxNumOfColumns;
         }
 
-        private void printPositionNotInBoardRange(string i_Position)
+        private void printPositionNotInBoardRange(string i_PositionInput)
         {
-            Console.WriteLine($"Position {i_Position} is not in the board range!");
+            Console.WriteLine($"Position {i_PositionInput} is not in the board range!");
         }
 
-        private void printPositionAlreadyRevealed(string i_Position)
+        private void printPositionAlreadyRevealed(string i_PositionInput)
         {
-            Console.WriteLine($"The card in position {i_Position} is already revealed!");
+            Console.WriteLine($"The card in position {i_PositionInput} is already revealed!");
         }
 
         private void printPositionInputNotInsertedCorrectly(string i_PositionInput)
         {
             Console.WriteLine($"Position {i_PositionInput} is not in the right format! " +
                               $"A correct position can be for example: E3 (mean column E, row 3)");
-        }
-
-        private string getPositionConvertedToText(GameBoard.Position i_Position)
-        {
-            char row = (char)(i_Position.RowIndex + 1);
-            char column = (char)('A' + i_Position.ColumnIndex);
-
-            return $"{column}{row}";
         }
 
         private GameBoard.Position getTextConvertedToPosition(string i_PositionText)
@@ -224,15 +220,10 @@ namespace UI
 
             return position;
         }
-
-        private void printComputerChoice(GameBoard.Position computerChosenPosition)
-        {
-            Console.Write($"Computer chose position {getPositionConvertedToText(computerChosenPosition)}");
-        }
         
-        private void setQuitByInput(string userInput)
+        private void setQuitByInput(string i_UserInput)
         {
-            if (userInput == k_QuitButton)
+            if (i_UserInput == k_QuitButton)
             {
                 m_IsQuit = true;
             }
@@ -271,7 +262,7 @@ namespace UI
                 }
                 else
                 {
-                    playerNames[i] = $"{k_ComputerName}{i + 1}";
+                    playerNames[i] = $"{k_ComputerName}{i}";
                     arePlayersHumans[i] = false;
                 }
             }
@@ -296,62 +287,79 @@ namespace UI
 
         private GameBoard.Position getBoardPosition(string i_BoardPositionInput)
         {
-            GameBoard.Position chosenPosition = getTextConvertedToPosition(i_BoardPositionInput);
+            GameBoard.Position chosenPosition = new GameBoard.Position();
 
-            adjustPositionToLogics(ref chosenPosition);
+            if (i_BoardPositionInput != null)
+            {
+                chosenPosition = getTextConvertedToPosition(i_BoardPositionInput);
+
+                adjustPositionToLogics(ref chosenPosition);
+            }
 
             return chosenPosition;
         }
 
-        private void adjustPositionToLogics(ref GameBoard.Position o_BoardPosition)
+        private void adjustPositionToLogics(ref GameBoard.Position io_BoardPosition)
         {
-            o_BoardPosition.RowIndex--;
+            io_BoardPosition.RowIndex--;
         }
 
         private void makePlayerTurn()
         {
             Player currentPlayer;
             GameBoard.Position[] chosenBoardPositions = new GameBoard.Position[k_PossibleNumOfCardsToReveal];
-            string validBoardPositionInput;
+            string validBoardPositionInput = null;
 
             currentPlayer = m_GameManager.GetActivePlayer();
             Console.WriteLine($"{currentPlayer.Name}'s turn:");
-            validBoardPositionInput = getBoardPositionFromUser();
 
+            if (m_GameManager.IsInputNeeded)
+            {
+                validBoardPositionInput = getBoardPositionFromUser();
+            }
             if (!m_IsQuit)
             {
                 chosenBoardPositions[0] = getBoardPosition(validBoardPositionInput);
-                askGameManagerToMakeFirstTurnAndShowBoard(chosenBoardPositions[0]);
-                validBoardPositionInput = getBoardPositionFromUser();
+                askGameManagerToMakeFirstTurnAndShowBoard(ref chosenBoardPositions[0]);
+
+                if (m_GameManager.IsInputNeeded)
+                {
+                    validBoardPositionInput = getBoardPositionFromUser();
+                }
+                else
+                {
+                    sleep(1000);
+                }
                 if (!m_IsQuit)
                 {
                     chosenBoardPositions[1] = getBoardPosition(validBoardPositionInput);
-                    askGameManagerToMakeSecondTurnAndShowBoard(chosenBoardPositions);
+                    askGameManagerToMakeSecondTurnAndShowBoard(ref chosenBoardPositions);
                 }
             }
         }
 
-        private void askGameManagerToMakeFirstTurnAndShowBoard(GameBoard.Position i_FirstCardPosition)
+        private void askGameManagerToMakeFirstTurnAndShowBoard(ref GameBoard.Position io_FirstCardPosition)
         {
-            m_GameManager.MakeActivePlayerFirstTurn(i_FirstCardPosition);
+            m_GameManager.MakeActivePlayerFirstTurn(ref io_FirstCardPosition);
             clearScreen();
             showGameBoard();
         }
 
-        private void askGameManagerToMakeSecondTurnAndShowBoard(GameBoard.Position[] i_ChosenBoardPositions)
+        private void askGameManagerToMakeSecondTurnAndShowBoard(ref GameBoard.Position[] io_ChosenBoardPositions)
         {
             bool isPairFound;
 
-            m_GameManager.MakeActivePlayerSecondTurn(i_ChosenBoardPositions[0], i_ChosenBoardPositions[1]);
-            isPairFound = m_GameManager.Board.IsValidPairAtPositions(i_ChosenBoardPositions[0], i_ChosenBoardPositions[1]);
+            m_GameManager.MakeActivePlayerSecondTurn(ref io_ChosenBoardPositions[0], ref io_ChosenBoardPositions[1]);
+            isPairFound = m_GameManager.Board.IsValidPairAtPositions(io_ChosenBoardPositions[0], io_ChosenBoardPositions[1]);
             clearScreen();
+
             if (isPairFound)
             {
                 showGameBoard();
             }
             else
             {
-                showUserWrongPair(i_ChosenBoardPositions);
+                showUserWrongPair(io_ChosenBoardPositions);
             }
         }
 
@@ -384,10 +392,12 @@ namespace UI
         public void Play()
         {
             showGameBoard();
+
             while (!m_IsQuit && !m_GameManager.IsGameOver)
             {
                 makePlayerTurn();
             }
+
             finishPlay();
         }
 
@@ -397,18 +407,14 @@ namespace UI
             {
                 Console.WriteLine("User quit the game");
             }
-            if (m_GameManager.IsGameOver)
+            else if (m_GameManager.IsGameOver)
             {
                 printWinner();
             }
-            if (isReplayRequested())
+            else if (isReplayRequested())
             {
                 clearScreen();
                 StartGameAndPlay();
-            }
-            else
-            {
-                Console.WriteLine("You did not want to start another game, BYE BYE !");
             }
         }
 
