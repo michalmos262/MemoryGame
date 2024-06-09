@@ -80,7 +80,7 @@ namespace UI
 
         private string getPlayerName(int i_PlayerIndex)
         {
-            Console.WriteLine($"Please the name of player {i_PlayerIndex + 1}:");
+            Console.WriteLine($"Please enter the name of player {i_PlayerIndex + 1}:");
             string name = Console.ReadLine();
 
             return name;
@@ -424,7 +424,7 @@ namespace UI
             string userInput;
             bool userChoice;
 
-            Console.WriteLine($"Do you want to play another game? Enter ({k_PlayAnotherGameButton} for yes, or any other button for no");
+            Console.WriteLine($"Do you want to play another game? Enter ({k_PlayAnotherGameButton} for yes, or any other button for no)");
             userInput = Console.ReadLine();
             userChoice = userInput != null && userInput == k_PlayAnotherGameButton;
             
@@ -435,6 +435,9 @@ namespace UI
         {
             Player[] players = m_GameManager.Players;
 
+            Console.WriteLine($"The winner is: {m_GameManager.GetWinner().Name}\n" +
+                              $"Game statistics:");
+
             Console.WriteLine("{0,-15} {1,5}", "Name", "Score");
             Console.WriteLine(new string('-', 22));
 
@@ -442,6 +445,8 @@ namespace UI
             {
                 Console.WriteLine("{0,-15} {1,5}", player.Name, player.Score);
             }
+
+            Console.WriteLine();
         }
     }
 }
