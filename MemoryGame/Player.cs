@@ -6,7 +6,7 @@
         private bool m_isHuman;
         private int m_Score;
         private const string k_ComputerName = "Computer";
-        public static int k_ComputerPlayersCounter = 0;
+        private static int k_ComputerPlayersCounter = 0;
 
         public Player(string i_Name, bool i_IsHuman)
         {
