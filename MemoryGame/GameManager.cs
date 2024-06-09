@@ -92,7 +92,6 @@ namespace MemoryGame
                 {
                     HidePairInBoard(io_FirstCardPosition, io_SecondCardPosition);
                     passTurn();
-                    m_isInputNeeded = !m_isInputNeeded;
                 }
             }
         }
@@ -100,6 +99,14 @@ namespace MemoryGame
         private void passTurn()
         {
             m_CurrentPlayerIndex = (m_CurrentPlayerIndex + 1) % k_NumOfPlayers;
+            if (!m_Players[m_CurrentPlayerIndex].IsHuman)
+            {
+                m_isInputNeeded = false;
+            }
+            else
+            {
+                m_isInputNeeded = true;
+            }
         }
 
         public Player GetActivePlayer()

@@ -139,7 +139,12 @@ namespace MemoryGame
 
         public bool IsPositionInRange(Position i_Position)
         {
-            return i_Position.RowIndex < m_NumOfRows && i_Position.ColumnIndex < m_NumOfColumns;
+            bool isPositiveRowIndex = i_Position.RowIndex >= 0;
+            bool isRowIndexInBoard = i_Position.RowIndex < m_NumOfRows;
+            bool isPositiveColumnIndex = i_Position.ColumnIndex >= 0;
+            bool isColumnIndexInBoard = i_Position.ColumnIndex < m_NumOfColumns;
+
+            return isPositiveRowIndex && isRowIndexInBoard && isPositiveColumnIndex && isColumnIndexInBoard;
         }
 
         public bool IsCardRevealed(Position i_Position)
