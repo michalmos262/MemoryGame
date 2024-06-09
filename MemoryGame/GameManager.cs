@@ -1,15 +1,17 @@
 ﻿using System.Collections.Generic;
 using System;
+using System.Linq;
 
 namespace MemoryGame
 {
     public class GameManager
     {
         private GameBoard m_Board;
-        private Player[] m_Players;
+        private List<Player> m_Players;
         private uint m_CurrentPlayerIndex;
         private bool m_IsGameOver;
-        private const uint k_NumOfPlayers = 2;
+        private const uint k_PossibleNumOfPlayers = 2;
+        private const uint k_PossibleTotalCardsToReveal = 2;
         private bool m_isInputNeeded;
 
         public GameManager()
@@ -17,7 +19,7 @@ namespace MemoryGame
             m_Board = null;
             m_CurrentPlayerIndex = 0;
             m_IsGameOver = false;
-            m_Players = new Player[k_NumOfPlayers];
+            m_Players = new List<Player>((int)k_PossibleNumOfPlayers);
             m_isInputNeeded = true;
         }
 
@@ -29,11 +31,11 @@ namespace MemoryGame
             }
         }
 
-        public uint NumOfPlayers
+        public uint PossibleNumOfPlayers
         {
             get
             {
-                return k_NumOfPlayers;
+                return k_PossibleNumOfPlayers;
             }
         }
 
@@ -53,11 +55,19 @@ namespace MemoryGame
             }
         }
 
-        public Player[] Players
+        public List<Player> Players
         {
             get
             {
                 return m_Players;
+            }
+        }
+
+        public uint PossibleTotalCardsToReveal
+        {
+            get
+            {
+                return k_PossibleTotalCardsToReveal;
             }
         }
 
@@ -106,7 +116,7 @@ namespace MemoryGame
 
         private void setInputIsNeeded()
         {
-            if (!m_Players[m_CurrentPlayerIndex].IsHuman)
+            if (!m_Players[(int)m_CurrentPlayerIndex].IsHuman)
             {
                 m_isInputNeeded = false;
             }
@@ -118,7 +128,7 @@ namespace MemoryGame
 
         private void passTurn()
         {
-            m_CurrentPlayerIndex = (m_CurrentPlayerIndex + 1) % k_NumOfPlayers;
+            m_CurrentPlayerIndex = (m_CurrentPlayerIndex + 1) % k_PossibleNumOfPlayers;
             setInputIsNeeded();
         }
 
@@ -128,7 +138,7 @@ namespace MemoryGame
 
             if (wasGameInitialized())
             {
-                activePlayer = m_Players[m_CurrentPlayerIndex];
+                activePlayer = m_Players[(int)m_CurrentPlayerIndex];
             }
             else
             {
@@ -235,15 +245,9 @@ namespace MemoryGame
             }
         }
 
-        public void SetPlayers(string[] i_Names, bool[] i_IsHumanArray)
+        public void AddPlayer(string i_Name, bool i_IsHuman)
         {
-            if (i_Names.Length == i_IsHumanArray.Length)
-            {
-                for (int i = 0; i < i_Names.Length; i++)
-                {
-                    m_Players[i] = new Player(i_Names[i], i_IsHumanArray[i]);
-                }
-            }
+            m_Players.Add(new Player(i_Name, i_IsHuman));
         }
 
         public void ResetGame()

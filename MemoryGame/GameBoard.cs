@@ -114,6 +114,7 @@ namespace MemoryGame
         {
             m_Board[i_Position.RowIndex, i_Position.ColumnIndex].IsRevealed = false;
         }
+
         public Card GetCardInPosition(Position position)
         {
             return m_Board[position.RowIndex, position.ColumnIndex];

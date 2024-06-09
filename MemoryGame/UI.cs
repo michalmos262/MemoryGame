@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MemoryGame;
 
 namespace UI
@@ -6,15 +7,12 @@ namespace UI
     public class UI
     {
         private GameManager m_GameManager;
-        private string[] m_PlayerNames;
-        private const string k_ComputerName = "Computer";
         private const uint k_BoardMinNumOfRows = 4;
         private const uint k_BoardMinNumOfColumns = 4;
         private const uint k_BoardMaxNumOfRows = 6;
         private const uint k_BoardMaxNumOfColumns = 6;
         private const string k_QuitButton = "Q";
         private const string k_PlayAnotherGameButton = "Y";
-        private const uint k_PossibleNumOfCardsToReveal = 2;
         private const int k_RevealTimeInMilliseconds = 2000;
         private bool m_IsQuit;
 
@@ -236,7 +234,7 @@ namespace UI
             string userInput = Console.ReadLine();
             setQuitByInput(userInput);
 
-         while (!m_IsQuit && !isValidPositionFormat(userInput))
+            while (!m_IsQuit && !isValidPositionFormat(userInput))
             {
                 userInput = Console.ReadLine();
                 setQuitByInput(userInput);
@@ -247,28 +245,23 @@ namespace UI
 
         private void setPlayers()
         {
-            m_PlayerNames = new string[m_GameManager.NumOfPlayers];
-            bool[] arePlayersHumans = new bool[m_GameManager.NumOfPlayers];
+            string playerNameInput = getPlayerName(0);
 
-            m_PlayerNames[0] = getPlayerName(0);
-            arePlayersHumans[0] = true;
+            m_GameManager.AddPlayer(playerNameInput, true);
             eGameModes gameMode = getGameMode();
 
-            for (int i = 1; i < m_GameManager.NumOfPlayers; i++)
+            for (int i = 1; i < m_GameManager.PossibleNumOfPlayers; i++)
             {
                 if (gameMode == eGameModes.HumanVsHuman)
                 {
-                    m_PlayerNames[i] = getPlayerName(i);
-                    arePlayersHumans[i] = true;
+                    playerNameInput = getPlayerName(i);
+                    m_GameManager.AddPlayer(playerNameInput, true);
                 }
                 else
                 {
-                    m_PlayerNames[i] = $"{k_ComputerName}{i}";
-                    arePlayersHumans[i] = false;
+                    m_GameManager.AddPlayer(null, false);
                 }
             }
-
-            m_GameManager.SetPlayers(m_PlayerNames, arePlayersHumans);
         }
 
         private void setBoard()
@@ -308,7 +301,7 @@ namespace UI
         private void makePlayerTurn()
         {
             Player currentPlayer;
-            GameBoard.Position[] chosenBoardPositions = new GameBoard.Position[k_PossibleNumOfCardsToReveal];
+            GameBoard.Position[] chosenBoardPositions = new GameBoard.Position[m_GameManager.PossibleTotalCardsToReveal];
             string validBoardPositionInput = null;
 
             currentPlayer = m_GameManager.GetActivePlayer();
@@ -393,7 +386,7 @@ namespace UI
             m_GameManager.ResetGame();
             m_IsQuit = false;
             setGameBoard();
-            Play();
+            play();
         }
 
         public void PlayGame()
@@ -402,7 +395,7 @@ namespace UI
             startNewGame();
         }
 
-        public void Play()
+        private void play()
         {
             showGameBoard();
 
@@ -414,11 +407,16 @@ namespace UI
             finishPlay();
         }
 
+        private void printUserQuit()
+        {
+            Console.WriteLine("User quit the game");
+        }
+
         private void finishPlay()
         {
             if (m_IsQuit)
             {
-                Console.WriteLine("User quit the game");
+                printUserQuit();
             }
             else
             {
@@ -428,6 +426,10 @@ namespace UI
                 {
                     clearScreen();
                     startNewGame();
+                }
+                else
+                {
+                    printUserQuit();
                 }
             }
         }
@@ -446,7 +448,7 @@ namespace UI
 
         private void printStatistics()
         {
-            Player[] players = m_GameManager.Players;
+            List<Player> players = m_GameManager.Players;
 
             Console.WriteLine($"The winner is: {m_GameManager.GetWinner().Name}\n" +
                               $"Game statistics:");
