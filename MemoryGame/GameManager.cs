@@ -53,6 +53,14 @@ namespace MemoryGame
             }
         }
 
+        public Player[] Players
+        {
+            get
+            {
+                return m_Players;
+            }
+        }
+
         public void MakeActivePlayerFirstTurn(ref GameBoard.Position io_FirstCardPosition)
         {
             Player activePlayer = GetActivePlayer();
@@ -96,9 +104,8 @@ namespace MemoryGame
             }
         }
 
-        private void passTurn()
+        private void setInputIsNeeded()
         {
-            m_CurrentPlayerIndex = (m_CurrentPlayerIndex + 1) % k_NumOfPlayers;
             if (!m_Players[m_CurrentPlayerIndex].IsHuman)
             {
                 m_isInputNeeded = false;
@@ -107,6 +114,12 @@ namespace MemoryGame
             {
                 m_isInputNeeded = true;
             }
+        }
+
+        private void passTurn()
+        {
+            m_CurrentPlayerIndex = (m_CurrentPlayerIndex + 1) % k_NumOfPlayers;
+            setInputIsNeeded();
         }
 
         public Player GetActivePlayer()

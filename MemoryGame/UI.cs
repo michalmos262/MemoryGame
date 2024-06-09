@@ -12,7 +12,7 @@ namespace UI
         private const uint k_BoardMaxNumOfRows = 6;
         private const uint k_BoardMaxNumOfColumns = 6;
         private const string k_QuitButton = "Q";
-        private const string k_ReplayRequest = "YES";
+        private const string k_PlayAnotherGameButton = "Y";
         private const uint k_PossibleNumOfCardsToReveal = 2;
         private const int k_RevealTimeInMilliseconds = 2000;
         private bool m_IsQuit;
@@ -235,7 +235,7 @@ namespace UI
             string userInput = Console.ReadLine();
             setQuitByInput(userInput);
 
-            while (!m_IsQuit && !isValidPositionFormat(userInput))
+         while (!m_IsQuit && !isValidPositionFormat(userInput))
             {
                 userInput = Console.ReadLine();
                 setQuitByInput(userInput);
@@ -407,14 +407,15 @@ namespace UI
             {
                 Console.WriteLine("User quit the game");
             }
-            else if (m_GameManager.IsGameOver)
+            else
             {
-                printWinner();
-            }
-            else if (isReplayRequested())
-            {
-                clearScreen();
-                StartGameAndPlay();
+                Console.WriteLine("Game is over!\n");
+                printStatistics();
+                if (isReplayRequested())
+                {
+                    clearScreen();
+                    StartGameAndPlay();
+                }
             }
         }
 
@@ -423,19 +424,24 @@ namespace UI
             string userInput;
             bool userChoice;
 
-            Console.WriteLine($"type {k_ReplayRequest} if you want to start another game");
+            Console.WriteLine($"Do you want to play another game? Enter ({k_PlayAnotherGameButton} for yes, or any other button for no");
             userInput = Console.ReadLine();
-            userChoice = userInput != null && userInput == k_ReplayRequest;
+            userChoice = userInput != null && userInput == k_PlayAnotherGameButton;
             
             return userChoice;
         }
 
-        private void printWinner()
+        private void printStatistics()
         {
-            Player winner;
+            Player[] players = m_GameManager.Players;
 
-            winner = m_GameManager.GetWinner();
-            Console.WriteLine($"The game finished and {winner.Name} is the winner !");
+            Console.WriteLine("{0,-15} {1,5}", "Name", "Score");
+            Console.WriteLine(new string('-', 22));
+
+            foreach (var player in players)
+            {
+                Console.WriteLine("{0,-15} {1,5}", player.Name, player.Score);
+            }
         }
     }
 }
