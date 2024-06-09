@@ -322,7 +322,7 @@ namespace UI
             {
                 chosenBoardPositions[0] = getBoardPosition(validBoardPositionInput);
                 askGameManagerToMakeFirstTurnAndShowBoard(ref chosenBoardPositions[0]);
-
+                
                 if (m_GameManager.IsInputNeeded)
                 {
                     validBoardPositionInput = getBoardPositionFromUser();
