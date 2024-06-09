@@ -246,6 +246,18 @@ namespace MemoryGame
             }
         }
 
+        public void ResetGame()
+        {
+            m_CurrentPlayerIndex = 0;
+            m_IsGameOver = false;
+            m_isInputNeeded = true;
+
+            foreach (Player player in m_Players)
+            {
+                player.Score = 0;
+            }
+        }
+
         public void SetBoardDimensions(uint i_NumOfRows, uint i_NumOfColumns)
         {
             if (GameBoard.AreDimensionsValid(i_NumOfRows, i_NumOfColumns))

@@ -5,7 +5,7 @@
         public static void Main()
         {
             UI.UI game = new UI.UI();
-            game.StartGameAndPlay();
+            game.PlayGame();
         }
     }
 }

@@ -6,6 +6,7 @@ namespace UI
     public class UI
     {
         private GameManager m_GameManager;
+        private string[] m_PlayerNames;
         private const string k_ComputerName = "Computer";
         private const uint k_BoardMinNumOfRows = 4;
         private const uint k_BoardMinNumOfColumns = 4;
@@ -246,10 +247,10 @@ namespace UI
 
         private void setPlayers()
         {
-            string[] playerNames = new string[m_GameManager.NumOfPlayers];
+            m_PlayerNames = new string[m_GameManager.NumOfPlayers];
             bool[] arePlayersHumans = new bool[m_GameManager.NumOfPlayers];
 
-            playerNames[0] = getPlayerName(0);
+            m_PlayerNames[0] = getPlayerName(0);
             arePlayersHumans[0] = true;
             eGameModes gameMode = getGameMode();
 
@@ -257,17 +258,17 @@ namespace UI
             {
                 if (gameMode == eGameModes.HumanVsHuman)
                 {
-                    playerNames[i] = getPlayerName(i);
+                    m_PlayerNames[i] = getPlayerName(i);
                     arePlayersHumans[i] = true;
                 }
                 else
                 {
-                    playerNames[i] = $"{k_ComputerName}{i}";
+                    m_PlayerNames[i] = $"{k_ComputerName}{i}";
                     arePlayersHumans[i] = false;
                 }
             }
 
-            m_GameManager.SetPlayers(playerNames, arePlayersHumans);
+            m_GameManager.SetPlayers(m_PlayerNames, arePlayersHumans);
         }
 
         private void setBoard()
@@ -374,19 +375,31 @@ namespace UI
             showGameBoard();
         }
 
-        private void start()
+        private void initGame()
         {
             m_GameManager = new GameManager();
             m_IsQuit = false;
             setPlayers();
+        }
+
+        private void setGameBoard()
+        {
             setBoard();
             clearScreen();
         }
 
-        public void StartGameAndPlay()
+        private void startNewGame()
         {
-            start();
+            m_GameManager.ResetGame();
+            m_IsQuit = false;
+            setGameBoard();
             Play();
+        }
+
+        public void PlayGame()
+        {
+            initGame();
+            startNewGame();
         }
 
         public void Play()
@@ -414,7 +427,7 @@ namespace UI
                 if (isReplayRequested())
                 {
                     clearScreen();
-                    StartGameAndPlay();
+                    startNewGame();
                 }
             }
         }
@@ -424,7 +437,7 @@ namespace UI
             string userInput;
             bool userChoice;
 
-            Console.WriteLine($"Do you want to play another game? Enter ({k_PlayAnotherGameButton} for yes, or any other button for no)");
+            Console.WriteLine($"Do you want to play another game? Enter {k_PlayAnotherGameButton} for yes, or any other button for no");
             userInput = Console.ReadLine();
             userChoice = userInput != null && userInput == k_PlayAnotherGameButton;
             
@@ -441,7 +454,7 @@ namespace UI
             Console.WriteLine("{0,-15} {1,5}", "Name", "Score");
             Console.WriteLine(new string('-', 22));
 
-            foreach (var player in players)
+            foreach (Player player in players)
             {
                 Console.WriteLine("{0,-15} {1,5}", player.Name, player.Score);
             }
