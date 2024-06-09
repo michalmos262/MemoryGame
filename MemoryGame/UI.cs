@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using MemoryGame;
 
 namespace UI
@@ -12,24 +11,18 @@ namespace UI
         private const uint k_BoardMinNumOfColumns = 4;
         private const uint k_BoardMaxNumOfRows = 6;
         private const uint k_BoardMaxNumOfColumns = 6;
-        private const int k_ErrorIndicator = -1;
         private const string k_QuitButton = "Q";
+        private const string k_ReplayRequest = "YES";
         private bool m_IsQuit = false;
-        private const string k_PossibleCardIcons = "ABCDEFGHIJKLMNOPRSTUVWXYZ";
         private const uint k_PossibleNumOfCardsToReveal = 2;
         private const int k_RevealTimeInMilliseconds = 2000;
 
-        public UI()
-        {
-            m_GameManager = new GameManager();
-        }
-
-        public void ClearScreen()
+        private void clearScreen()
         {
             Ex02.ConsoleUtils.Screen.Clear();
         }
 
-        public void ShowGameBoard()
+        private void showGameBoard()
         {
             printColumnLabels();
             Console.WriteLine("  " + new string('=', (int)(m_GameManager.Board.NumOfColumns * 4) + 1));
@@ -38,10 +31,12 @@ namespace UI
 
         private void printColumnLabels()
         {
+            char columnLabel;
+
             Console.Write("   ");
             for (int col = 0; col < m_GameManager.Board.NumOfColumns; col++)
             {
-                char columnLabel = (char)('A' + col);
+                columnLabel = (char)('A' + col);
                 Console.Write($" {columnLabel}  ");
             }
 
@@ -51,7 +46,7 @@ namespace UI
         private void printGameBoard()
         {
             Card currentCard;
-        
+
             for (int row = 0; row < m_GameManager.Board.NumOfRows; row++)
             {
                 Console.Write($"{row + 1} | ");
@@ -79,40 +74,45 @@ namespace UI
 
         private void sleep(int i_RevealTimeInMilliseconds = k_RevealTimeInMilliseconds)
         {
-            System.Threading.Thread.Sleep(k_RevealTimeInMilliseconds);
+            System.Threading.Thread.Sleep(i_RevealTimeInMilliseconds);
         }
 
-        public string GetPlayerName(int playerIndex)
+        private string getPlayerName(int i_PlayerIndex)
         {
-            Console.WriteLine($"Please the name of player {playerIndex}:" );
+            Console.WriteLine($"Please the name of player {i_PlayerIndex + 1}:");
             string name = Console.ReadLine();
 
             return name;
         }
 
-        public eGameModes GetGameMode()
+        private eGameModes getGameMode()
         {
+            uint optionNumberFromUser;
+            string userInput;
+            bool isOptionNumber;
+
             Console.WriteLine($"Who do you want to play with? Please insert the right option number:\n" +
                               $"({(int)eGameModes.HumanVsComputer}) Computer\n" +
                               $"({(int)eGameModes.HumanVsHuman}) Another player");
-
-            uint optionNumberFromUser;
-            string userInput = Console.ReadLine();
-            bool isOptionNumber = uint.TryParse(userInput, out optionNumberFromUser);
-
-            while (!isOptionNumber || (optionNumberFromUser != (int)eGameModes.HumanVsHuman && optionNumberFromUser != (int)eGameModes.HumanVsComputer))
+            userInput = Console.ReadLine();
+            isOptionNumber = uint.TryParse(userInput, out optionNumberFromUser);
+            while (!isOptionNumber || !isValidGameMode((eGameModes)optionNumberFromUser))
             {
                 Console.WriteLine("Wrong input! Please try again:");
                 userInput = Console.ReadLine();
                 isOptionNumber = uint.TryParse(userInput, out optionNumberFromUser);
             }
-
             eGameModes gameMode = (eGameModes)optionNumberFromUser;
 
             return gameMode;
         }
 
-        public uint GetBoardNumOfRows()
+        private bool isValidGameMode(eGameModes i_GameMode)
+        {
+            return i_GameMode == eGameModes.HumanVsHuman || i_GameMode == eGameModes.HumanVsComputer;
+        }
+
+        private uint getBoardNumOfRows()
         {
             Console.WriteLine("Enter the number of the board rows:");
             uint numOfRowsFromUser;
@@ -130,7 +130,7 @@ namespace UI
             return numOfRowsFromUser;
         }
 
-        public uint GetBoardNumOfColumns()
+        private uint getBoardNumOfColumns()
         {
             Console.WriteLine("Enter the number of the board columns:");
             uint numOfColumnsFromUser;
@@ -151,40 +151,31 @@ namespace UI
         private bool isValidPositionFormat(string i_UserInput)
         {
             bool isValidPosition = false;
-            bool isRightLength = i_UserInput.Length == 2;
-            
+            bool isFirstLetterCharacter = char.IsUpper(i_UserInput[0]);
+            string inputWithoutFirstChar = i_UserInput.Substring(1);
+            bool isDigitAfterCharacter = int.TryParse(inputWithoutFirstChar, out _);
 
-            if (isRightLength)
+            if (isFirstLetterCharacter && isDigitAfterCharacter)
             {
-                bool isFirstLetterCharacter = char.IsUpper(i_UserInput[0]);
-                bool isSecondLetterDigit = char.IsDigit(i_UserInput[1]);//TODO: position P100 should be range error
-                if (isFirstLetterCharacter && isSecondLetterDigit)
+                GameBoard.Position position = getTextConvertedToPosition(i_UserInput);
+                adjustPositionToLogics(ref position);
+                ePositionStatus positionStatus = m_GameManager.GetPositionChoiceStatus(position);
+                if (positionStatus == ePositionStatus.RevealedPosition)
                 {
-                    GameBoard.Position position = getTextConvertedToPosition(i_UserInput);
-                    adjustPositionToLogics(ref position);
-                    ePositionStatus positionStatus = m_GameManager.GetPositionChoiceStatus(position);
-                    if (positionStatus == ePositionStatus.RevealedPosition)
-                    {
-                        PrintPositionAlreadyRevealed(i_UserInput);//TODO: doesn't work, need to understand what happens in the manager, looks like it doesn't update the status of the positions
-                    }
-
-                    if (positionStatus == ePositionStatus.OutsideBoard)
-                    {
-                        PrintPositionNotInBoardRange(i_UserInput);
-                    }
-                    else
-                    {
-                        isValidPosition = true;
-                    }
+                    printPositionAlreadyRevealed(i_UserInput);
+                }
+                else if (positionStatus == ePositionStatus.OutsideBoard)
+                {
+                    printPositionNotInBoardRange(i_UserInput);
                 }
                 else
                 {
-                    PrintPositionInputNotInsertedCorrectly(i_UserInput);
+                    isValidPosition = true;
                 }
             }
             else
             {
-                PrintPositionInputNotInsertedCorrectly(i_UserInput);
+                printPositionInputNotInsertedCorrectly(i_UserInput);
             }
 
             return isValidPosition;
@@ -200,50 +191,45 @@ namespace UI
             return i_NumOfBoardColumns >= k_BoardMinNumOfColumns && i_NumOfBoardColumns <= k_BoardMaxNumOfColumns;
         }
 
-        public void PrintPositionNotInBoardRange(string i_Position)
+        private void printPositionNotInBoardRange(string i_Position)
         {
             Console.WriteLine($"Position {i_Position} is not in the board range!");
         }
 
-        public void PrintPositionAlreadyRevealed(string i_Position)
+        private void printPositionAlreadyRevealed(string i_Position)
         {
             Console.WriteLine($"The card in position {i_Position} is already revealed!");
         }
 
-        public void PrintPositionInputNotInsertedCorrectly(string positionInput)
+        private void printPositionInputNotInsertedCorrectly(string i_PositionInput)
         {
-            Console.WriteLine($"Position {positionInput} is not in the right format! " +
+            Console.WriteLine($"Position {i_PositionInput} is not in the right format! " +
                               $"A correct position can be for example: E3 (mean column E, row 3)");
         }
 
-        public void PrintCardAlreadyRevealed(GameBoard.Position position)
+        private string getPositionConvertedToText(GameBoard.Position i_Position)
         {
-            Console.WriteLine($"The card in position {position} is already revealed." +
-                              $"You need to choose a hidden card position");
-        }
-
-        private string getPositionConvertedToText(GameBoard.Position position)
-        {
-            char row = (char)(position.RowIndex + 1);
-            char column = (char)('A' + position.ColumnIndex);
+            char row = (char)(i_Position.RowIndex + 1);
+            char column = (char)('A' + i_Position.ColumnIndex);
 
             return $"{column}{row}";
         }
 
-        private GameBoard.Position getTextConvertedToPosition(string positionText)
+        private GameBoard.Position getTextConvertedToPosition(string i_PositionText)
         {
-            int row = int.Parse(positionText[1].ToString());
-            int column = positionText[0] - 'A';
+            string rowString = i_PositionText.Substring(1);
+            int row = int.Parse(rowString);
+            int column = i_PositionText[0] - 'A';
             GameBoard.Position position = new GameBoard.Position(row, column);
 
             return position;
         }
 
-        public void PrintComputerChoice(GameBoard.Position computerChosenPosition)
+        private void printComputerChoice(GameBoard.Position computerChosenPosition)
         {
             Console.Write($"Computer chose position {getPositionConvertedToText(computerChosenPosition)}");
         }
-
+        
         private void setQuitByInput(string userInput)
         {
             if (userInput == k_QuitButton)
@@ -252,7 +238,7 @@ namespace UI
             }
         }
 
-        public string GetBoardPositionFromUser()
+        private string getBoardPositionFromUser()
         {
             Console.WriteLine("Enter a board position to reveal a card (for example position E3 means column E, row 3):");
             string userInput = Console.ReadLine();
@@ -272,15 +258,15 @@ namespace UI
             string[] playerNames = new string[m_GameManager.NumOfPlayers];
             bool[] arePlayersHumans = new bool[m_GameManager.NumOfPlayers];
 
-            playerNames[0] = GetPlayerName(1);
+            playerNames[0] = getPlayerName(0);
             arePlayersHumans[0] = true;
-            eGameModes gameMode = GetGameMode();
+            eGameModes gameMode = getGameMode();
 
             for (int i = 1; i < m_GameManager.NumOfPlayers; i++)
             {
                 if (gameMode == eGameModes.HumanVsHuman)
                 {
-                    playerNames[i] = GetPlayerName(i + 1);
+                    playerNames[i] = getPlayerName(i);
                     arePlayersHumans[i] = true;
                 }
                 else
@@ -295,14 +281,14 @@ namespace UI
 
         private void setBoard()
         {
-            uint numOfBoardRows = GetBoardNumOfRows();
-            uint numOfBoardColumns = GetBoardNumOfColumns();
+            uint numOfBoardRows = getBoardNumOfRows();
+            uint numOfBoardColumns = getBoardNumOfColumns();
 
             while (!GameBoard.AreDimensionsValid(numOfBoardRows, numOfBoardColumns))
             {
                 Console.WriteLine("Board size should be even! Please try again:");
-                numOfBoardRows = GetBoardNumOfRows();
-                numOfBoardColumns = GetBoardNumOfColumns();
+                numOfBoardRows = getBoardNumOfRows();
+                numOfBoardColumns = getBoardNumOfColumns();
             }
 
             m_GameManager.SetBoardDimensions(numOfBoardRows, numOfBoardColumns);
@@ -313,101 +299,137 @@ namespace UI
             GameBoard.Position chosenPosition = getTextConvertedToPosition(i_BoardPositionInput);
 
             adjustPositionToLogics(ref chosenPosition);
-        
+
             return chosenPosition;
         }
 
-        private void adjustPositionToLogics(ref GameBoard.Position i_BoardPosition)
+        private void adjustPositionToLogics(ref GameBoard.Position o_BoardPosition)
         {
-            i_BoardPosition.RowIndex--;
-        }
-
-        private GameBoard.Position[] makeHumanPlayerTurn()
-        {
-            GameBoard.Position[] chosenBoardPositions = new GameBoard.Position[k_PossibleNumOfCardsToReveal];
-
-            string boardPositionInput = GetBoardPositionFromUser();
-
-            if (!m_IsQuit)
-            {
-                chosenBoardPositions[0] = getBoardPosition(boardPositionInput);
-                m_GameManager.MakeActivePlayerFirstTurn(chosenBoardPositions[0]);
-                ClearScreen();
-                ShowGameBoard();
-                boardPositionInput = GetBoardPositionFromUser();
-
-                if (!m_IsQuit)
-                {
-                    chosenBoardPositions[1] = getBoardPosition(boardPositionInput);
-                }
-            }
-
-            return chosenBoardPositions;
-        }
-
-        private GameBoard.Position[] makeComputerPlayerTurn()
-        {
-            GameBoard.Position[] chosenBoardPositions = new GameBoard.Position[k_PossibleNumOfCardsToReveal];
-
-            chosenBoardPositions[0] = m_GameManager.ChooseRandomHiddenCellInBoard();
-            m_GameManager.MakeActivePlayerFirstTurn(chosenBoardPositions[0]);
-            sleep(1000);
-            ClearScreen();
-            ShowGameBoard();
-            chosenBoardPositions[1] = m_GameManager.ChooseRandomHiddenCellInBoard();
-
-            return chosenBoardPositions;
+            o_BoardPosition.RowIndex--;
         }
 
         private void makePlayerTurn()
         {
-            //TODO: UI should not know who plays, need to fix
-            Player currentPlayer = m_GameManager.GetActivePlayer();
-            Console.WriteLine($"{currentPlayer.Name}'s turn:");
-            GameBoard.Position[] chosenBoardPositions;
+            Player currentPlayer;
+            GameBoard.Position[] chosenBoardPositions = new GameBoard.Position[k_PossibleNumOfCardsToReveal];
+            string validBoardPositionInput;
 
-            if (currentPlayer.IsHuman)
-            {
-                chosenBoardPositions = makeHumanPlayerTurn();
-            }
-            else
-            {
-                chosenBoardPositions = makeComputerPlayerTurn();
-            }
+            currentPlayer = m_GameManager.GetActivePlayer();
+            Console.WriteLine($"{currentPlayer.Name}'s turn:");
+            validBoardPositionInput = getBoardPositionFromUser();
 
             if (!m_IsQuit)
             {
-                bool isPairFound = m_GameManager.MakeActivePlayerSecondTurn(chosenBoardPositions[0], chosenBoardPositions[1]);
-                ClearScreen();
-                ShowGameBoard();
-                if (!isPairFound)
+                chosenBoardPositions[0] = getBoardPosition(validBoardPositionInput);
+                askGameManagerToMakeFirstTurnAndShowBoard(chosenBoardPositions[0]);
+                validBoardPositionInput = getBoardPositionFromUser();
+                if (!m_IsQuit)
                 {
-                    sleep();
-                    m_GameManager.HidePairInBoardAndPassTurn(chosenBoardPositions[0], chosenBoardPositions[1]);
-                    ClearScreen();
-                    ShowGameBoard();
+                    chosenBoardPositions[1] = getBoardPosition(validBoardPositionInput);
+                    askGameManagerToMakeSecondTurnAndShowBoard(chosenBoardPositions);
                 }
             }
         }
 
-        public void Play()
+        private void askGameManagerToMakeFirstTurnAndShowBoard(GameBoard.Position i_FirstCardPosition)
         {
+            m_GameManager.MakeActivePlayerFirstTurn(i_FirstCardPosition);
+            clearScreen();
+            showGameBoard();
+        }
+
+        private void askGameManagerToMakeSecondTurnAndShowBoard(GameBoard.Position[] i_ChosenBoardPositions)
+        {
+            bool isPairFound;
+
+            m_GameManager.MakeActivePlayerSecondTurn(i_ChosenBoardPositions[0], i_ChosenBoardPositions[1]);
+            isPairFound = m_GameManager.Board.IsValidPairAtPositions(i_ChosenBoardPositions[0], i_ChosenBoardPositions[1]);
+            clearScreen();
+            if (isPairFound)
+            {
+                showGameBoard();
+            }
+            else
+            {
+                showUserWrongPair(i_ChosenBoardPositions);
+            }
+        }
+
+        private void showUserWrongPair(GameBoard.Position[] i_ChosenBoardPositions)
+        {
+            m_GameManager.RevealCardInBoard(i_ChosenBoardPositions[0]);
+            m_GameManager.RevealCardInBoard(i_ChosenBoardPositions[1]);
+            showGameBoard();
+            sleep();
+            m_GameManager.HidePairInBoard(i_ChosenBoardPositions[0], i_ChosenBoardPositions[1]);
+            clearScreen();
+            showGameBoard();
+        }
+
+        private void start()
+        {
+            m_GameManager = new GameManager();
+            m_IsQuit = false;
             setPlayers();
             setBoard();
-            ShowGameBoard();
+            clearScreen();
+        }
 
-            
-            while (!m_IsQuit)
+        public void StartGameAndPlay()
+        {
+            start();
+            Play();
+        }
+
+        public void Play()
+        {
+            showGameBoard();
+            while (!m_IsQuit && !m_GameManager.IsGameOver)
             {
                 makePlayerTurn();
             }
+            finishPlay();
+        }
 
+        private void finishPlay()
+        {
             if (m_IsQuit)
             {
-                Console.WriteLine("BYE");
+                Console.WriteLine("User quit the game");
             }
-            //TODO: print winner/tie
-            //TODO: ask user for new game
+            if (m_GameManager.IsGameOver)
+            {
+                printWinner();
+            }
+            if (isReplayRequested())
+            {
+                clearScreen();
+                StartGameAndPlay();
+            }
+            else
+            {
+                Console.WriteLine("You did not want to start another game, BYE BYE !");
+            }
+        }
+
+        private bool isReplayRequested()
+        {
+            string userInput;
+            bool userChoice;
+
+            Console.WriteLine($"type {k_ReplayRequest} if you want to start another game");
+            userInput = Console.ReadLine();
+            userChoice = userInput != null && userInput == k_ReplayRequest;
+            
+            return userChoice;
+        }
+
+        private void printWinner()
+        {
+            Player winner;
+
+            winner = m_GameManager.GetWinner();
+            Console.WriteLine($"The game finished and {winner.Name} is the winner !");
         }
     }
 }
