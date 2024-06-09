@@ -1,5 +1,4 @@
-﻿
-namespace MemoryGame
+﻿namespace MemoryGame
 {
     public enum ePositionStatus
     {

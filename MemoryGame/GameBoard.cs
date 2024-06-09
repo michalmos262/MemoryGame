@@ -56,19 +56,6 @@ namespace MemoryGame
             }
         }
 
-        public Card[,] Board
-        {
-            get
-            {
-                return m_Board;
-            }
-        }
-
-        public uint GetNumOfCardPairs()
-        {
-            return m_NumOfRows * m_NumOfColumns / 2;
-        }
-
         public GameBoard(uint i_NumOfRows, uint i_NumOfColumns)
         {
             m_NumOfRows = i_NumOfRows;
@@ -80,9 +67,10 @@ namespace MemoryGame
         private void fillBoardWithHiddenCards()
         {
             Card[] cards = generateRandomCards();
-
             Random rand = new Random();
             int temporaryCardsAmount = cards.Length;
+            int cardIndexInCards = 0;
+
             while (temporaryCardsAmount > 1)
             {
                 temporaryCardsAmount--;
@@ -91,8 +79,6 @@ namespace MemoryGame
                 cards[randomIndex] = cards[temporaryCardsAmount];
                 cards[temporaryCardsAmount] = temporaryCard;
             }
-
-            int cardIndexInCards = 0;
             for (int i = 0; i < m_NumOfRows; i++)
             {
                 for (int j = 0; j < m_NumOfColumns; j++)
@@ -120,26 +106,13 @@ namespace MemoryGame
         public Card RevealCard(Position i_Position)
         {
             m_Board[i_Position.RowIndex, i_Position.ColumnIndex].IsRevealed = true;
+
             return m_Board[i_Position.RowIndex, i_Position.ColumnIndex];
         }
 
         public void HideCard(Position i_Position)
         {
             m_Board[i_Position.RowIndex, i_Position.ColumnIndex].IsRevealed = false;
-        }
-
-        public void RevealIfPair(Position i_FirstCardPosition, Position i_SecondCardPosition)
-        {
-            if (IsValidPairAtPositions(i_FirstCardPosition, i_SecondCardPosition))
-            {
-                RevealCard(i_FirstCardPosition);
-                RevealCard(i_SecondCardPosition);
-            }
-            else
-            {
-                HideCard(i_FirstCardPosition);
-                HideCard(i_SecondCardPosition);
-            }
         }
 
         public Card GetCardInPosition(Position position)
@@ -150,6 +123,7 @@ namespace MemoryGame
         public List<Position> GetCurrentHiddenCells()
         {
             List<Position> currentHiddenBoardCells = new List<Position>();
+
             for (int i = 0; i < m_NumOfRows; i++)
             {
                 for (int j = 0; j < m_NumOfColumns; j++)
@@ -166,18 +140,25 @@ namespace MemoryGame
 
         public bool IsPositionInRange(Position i_Position)
         {
-            return i_Position.RowIndex < m_NumOfRows && i_Position.ColumnIndex < m_NumOfColumns;
+            bool isPositiveRowIndex = i_Position.RowIndex >= 0;
+            bool isRowIndexInBoard = i_Position.RowIndex < m_NumOfRows;
+            bool isPositiveColumnIndex = i_Position.ColumnIndex >= 0;
+            bool isColumnIndexInBoard = i_Position.ColumnIndex < m_NumOfColumns;
+
+            return isPositiveRowIndex && isRowIndexInBoard && isPositiveColumnIndex && isColumnIndexInBoard;
         }
 
         public bool IsCardRevealed(Position i_Position)
         {
             Card cardInPosition = GetCardInPosition(i_Position);
+
             return cardInPosition.IsRevealed;
         }
 
         public bool AreAllCardsRevealed()
         {
             List<Position> currentHiddenBoardCells = GetCurrentHiddenCells();
+
             return currentHiddenBoardCells.Count == 0;
         }
 

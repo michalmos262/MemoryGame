@@ -1,22 +1,26 @@
 ﻿using System.Collections.Generic;
 using System;
+using System.Linq;
 
 namespace MemoryGame
 {
     public class GameManager
     {
         private GameBoard m_Board;
-        private Player[] m_Players;
+        private List<Player> m_Players;
         private uint m_CurrentPlayerIndex;
         private bool m_IsGameOver;
-        private const uint k_NumOfPlayers = 2;
+        private const uint k_PossibleNumOfPlayers = 2;
+        private const uint k_PossibleTotalCardsToReveal = 2;
+        private bool m_isInputNeeded;
 
         public GameManager()
         {
             m_Board = null;
             m_CurrentPlayerIndex = 0;
             m_IsGameOver = false;
-            m_Players = new Player[k_NumOfPlayers];
+            m_Players = new List<Player>((int)k_PossibleNumOfPlayers);
+            m_isInputNeeded = true;
         }
 
         public GameBoard Board
@@ -27,11 +31,11 @@ namespace MemoryGame
             }
         }
 
-        public uint NumOfPlayers
+        public uint PossibleNumOfPlayers
         {
             get
             {
-                return k_NumOfPlayers;
+                return k_PossibleNumOfPlayers;
             }
         }
 
@@ -42,57 +46,89 @@ namespace MemoryGame
                 return m_IsGameOver;
             }
         }
-        public void MakeActivePlayerFirstTurn(GameBoard.Position i_FirstCardPosition)
+
+        public bool IsInputNeeded
+        {
+            get
+            {
+                return m_isInputNeeded;
+            }
+        }
+
+        public List<Player> Players
+        {
+            get
+            {
+                return m_Players;
+            }
+        }
+
+        public uint PossibleTotalCardsToReveal
+        {
+            get
+            {
+                return k_PossibleTotalCardsToReveal;
+            }
+        }
+
+        public void MakeActivePlayerFirstTurn(ref GameBoard.Position io_FirstCardPosition)
         {
             Player activePlayer = GetActivePlayer();
 
             if (activePlayer != null)
             {
-                RevealCardInBoard(i_FirstCardPosition);
+                if (!activePlayer.IsHuman)
+                {
+                    io_FirstCardPosition = ChooseRandomHiddenCellInBoard();
+                }
+
+                RevealCardInBoard(io_FirstCardPosition);
             }
         }
 
-        public void MakeActivePlayerSecondTurn(GameBoard.Position i_FirstCardPosition, GameBoard.Position i_SecondCardPosition)
+        public void MakeActivePlayerSecondTurn(ref GameBoard.Position io_FirstCardPosition, ref GameBoard.Position io_SecondCardPosition)
         {
             Player activePlayer = GetActivePlayer();
             bool isValidPair;
 
             if (activePlayer != null)
             {
-                RevealCardInBoard(i_SecondCardPosition);
-                isValidPair = m_Board.IsValidPairAtPositions(i_FirstCardPosition, i_SecondCardPosition);
+                if (!activePlayer.IsHuman)
+                {
+                    io_SecondCardPosition = ChooseRandomHiddenCellInBoard();
+                }
 
+                RevealCardInBoard(io_SecondCardPosition);
+                isValidPair = m_Board.IsValidPairAtPositions(io_FirstCardPosition, io_SecondCardPosition);
                 if (isValidPair)
                 {
                     activePlayer.Score++;
-                    m_IsGameOver = m_Board.AreAllCardsRevealed(); // Update the status of the game MAYBE CHANGE PLACE OF THIS LINE??
+                    m_IsGameOver = m_Board.AreAllCardsRevealed();
                 }
                 else
                 {
-                    HidePairInBoard(i_FirstCardPosition, i_SecondCardPosition);
+                    HidePairInBoard(io_FirstCardPosition, io_SecondCardPosition);
                     passTurn();
-                    handleTurnIfComputer();
                 }
+            }
+        }
+
+        private void setInputIsNeeded()
+        {
+            if (!m_Players[(int)m_CurrentPlayerIndex].IsHuman)
+            {
+                m_isInputNeeded = false;
+            }
+            else
+            {
+                m_isInputNeeded = true;
             }
         }
 
         private void passTurn()
         {
-            m_CurrentPlayerIndex = (m_CurrentPlayerIndex + 1) % k_NumOfPlayers;
-        }
-
-        private void handleTurnIfComputer()
-        {
-            Player activePlayer = GetActivePlayer();
-            GameBoard.Position firstCardPosition, secondCardPosition;
-
-            if (activePlayer.IsHuman is false)
-            {
-                firstCardPosition = ChooseRandomHiddenCellInBoard();
-                MakeActivePlayerFirstTurn(firstCardPosition);
-                secondCardPosition = ChooseRandomHiddenCellInBoard();
-                MakeActivePlayerSecondTurn(firstCardPosition, secondCardPosition);
-            }
+            m_CurrentPlayerIndex = (m_CurrentPlayerIndex + 1) % k_PossibleNumOfPlayers;
+            setInputIsNeeded();
         }
 
         public Player GetActivePlayer()
@@ -101,7 +137,7 @@ namespace MemoryGame
 
             if (wasGameInitialized())
             {
-                activePlayer = m_Players[m_CurrentPlayerIndex];
+                activePlayer = m_Players[(int)m_CurrentPlayerIndex];
             }
             else
             {
@@ -175,7 +211,6 @@ namespace MemoryGame
         {
             Random random = new Random();
             List<GameBoard.Position> hiddenBoardCells = m_Board.GetCurrentHiddenCells();
-
             int randomIndex = random.Next(hiddenBoardCells.Count);
 
             return hiddenBoardCells[randomIndex];
@@ -209,14 +244,20 @@ namespace MemoryGame
             }
         }
 
-        public void SetPlayers(string[] i_Names, bool[] i_IsHumanArray)
+        public void AddPlayer(string i_Name, bool i_IsHuman)
         {
-            if (i_Names.Length == i_IsHumanArray.Length)
+            m_Players.Add(new Player(i_Name, i_IsHuman));
+        }
+
+        public void ResetGame()
+        {
+            m_CurrentPlayerIndex = 0;
+            m_IsGameOver = false;
+            m_isInputNeeded = true;
+
+            foreach (Player player in m_Players)
             {
-                for (int i = 0; i < i_Names.Length; i++)
-                {
-                    m_Players[i] = new Player(i_Names[i], i_IsHumanArray[i]);
-                }
+                player.Score = 0;
             }
         }
 

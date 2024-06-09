@@ -5,11 +5,7 @@
         public static void Main()
         {
             UI.UI game = new UI.UI();
-            game.StartGameAndPlay();
+            game.PlayGame();
         }
-
     }
 }
-//TODO: delete redundant functions
-//TODO: delete redundant usings
-
