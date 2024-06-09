@@ -49,7 +49,6 @@ namespace UI
             for (int row = 0; row < m_GameManager.Board.NumOfRows; row++)
             {
                 Console.Write($"{row + 1} | ");
-
                 for (int col = 0; col < m_GameManager.Board.NumOfColumns; col++)
                 {
                     GameBoard.Position position = new GameBoard.Position(row, col);
@@ -96,7 +95,6 @@ namespace UI
                               $"({(int)eGameModes.HumanVsHuman}) Another player");
             userInput = Console.ReadLine();
             isOptionNumber = uint.TryParse(userInput, out optionNumberFromUser);
-
             while (!isOptionNumber || !isValidGameMode((eGameModes)optionNumberFromUser))
             {
                 Console.WriteLine("Wrong input! Please try again:");
@@ -162,7 +160,6 @@ namespace UI
                 GameBoard.Position position = getTextConvertedToPosition(i_UserInput);
                 adjustPositionToLogics(ref position);
                 ePositionStatus positionStatus = m_GameManager.GetPositionChoiceStatus(position);
-
                 if (positionStatus == ePositionStatus.RevealedPosition)
                 {
                     printPositionAlreadyRevealed(i_UserInput);
@@ -233,7 +230,6 @@ namespace UI
             Console.WriteLine("Enter a board position to reveal a card (for example position E3 means column E, row 3):");
             string userInput = Console.ReadLine();
             setQuitByInput(userInput);
-
             while (!m_IsQuit && !isValidPositionFormat(userInput))
             {
                 userInput = Console.ReadLine();
@@ -249,7 +245,6 @@ namespace UI
 
             m_GameManager.AddPlayer(playerNameInput, true);
             eGameModes gameMode = getGameMode();
-
             for (int i = 1; i < m_GameManager.PossibleNumOfPlayers; i++)
             {
                 if (gameMode == eGameModes.HumanVsHuman)
@@ -306,7 +301,6 @@ namespace UI
 
             currentPlayer = m_GameManager.GetActivePlayer();
             Console.WriteLine($"{currentPlayer.Name}'s turn:");
-
             if (m_GameManager.IsInputNeeded)
             {
                 validBoardPositionInput = getBoardPositionFromUser();
@@ -346,7 +340,6 @@ namespace UI
             m_GameManager.MakeActivePlayerSecondTurn(ref io_ChosenBoardPositions[0], ref io_ChosenBoardPositions[1]);
             isPairFound = m_GameManager.Board.IsValidPairAtPositions(io_ChosenBoardPositions[0], io_ChosenBoardPositions[1]);
             clearScreen();
-
             if (isPairFound)
             {
                 showGameBoard();
@@ -389,22 +382,21 @@ namespace UI
             play();
         }
 
-        public void PlayGame()
-        {
-            initGame();
-            startNewGame();
-        }
-
         private void play()
         {
             showGameBoard();
-
             while (!m_IsQuit && !m_GameManager.IsGameOver)
             {
                 makePlayerTurn();
             }
 
             finishPlay();
+        }
+
+        public void PlayGame()
+        {
+            initGame();
+            startNewGame();
         }
 
         private void printUserQuit()
@@ -452,10 +444,8 @@ namespace UI
 
             Console.WriteLine($"The winner is: {m_GameManager.GetWinner().Name}\n" +
                               $"Game statistics:");
-
             Console.WriteLine("{0,-15} {1,5}", "Name", "Score");
             Console.WriteLine(new string('-', 22));
-
             foreach (Player player in players)
             {
                 Console.WriteLine("{0,-15} {1,5}", player.Name, player.Score);

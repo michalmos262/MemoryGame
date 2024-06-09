@@ -100,7 +100,6 @@ namespace MemoryGame
 
                 RevealCardInBoard(io_SecondCardPosition);
                 isValidPair = m_Board.IsValidPairAtPositions(io_FirstCardPosition, io_SecondCardPosition);
-
                 if (isValidPair)
                 {
                     activePlayer.Score++;
