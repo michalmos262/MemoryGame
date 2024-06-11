@@ -4,7 +4,7 @@ using MemoryGame;
 
 namespace UI
 {
-    public class UI
+    public class ConsoleInteraction
     {
         private GameManager m_GameManager;
         private const uint k_BoardMinNumOfRows = 4;
@@ -293,14 +293,20 @@ namespace UI
             io_BoardPosition.RowIndex--;
         }
 
-        private void makePlayerTurn()
+        private void printCurrentPlayerTurn()
         {
             Player currentPlayer;
-            GameBoard.Position[] chosenBoardPositions = new GameBoard.Position[m_GameManager.PossibleTotalCardsToReveal];
-            string validBoardPositionInput = null;
 
             currentPlayer = m_GameManager.GetActivePlayer();
             Console.WriteLine($"{currentPlayer.Name}'s turn:");
+        }
+
+        private void makePlayerTurn()
+        {
+            GameBoard.Position[] chosenBoardPositions = new GameBoard.Position[m_GameManager.PossibleTotalCardsToReveal];
+            string validBoardPositionInput = null;
+
+            printCurrentPlayerTurn();
             if (m_GameManager.IsInputNeeded)
             {
                 validBoardPositionInput = getBoardPositionFromUser();
@@ -309,7 +315,8 @@ namespace UI
             {
                 chosenBoardPositions[0] = getBoardPosition(validBoardPositionInput);
                 askGameManagerToMakeFirstTurnAndShowBoard(ref chosenBoardPositions[0]);
-                
+
+                printCurrentPlayerTurn();
                 if (m_GameManager.IsInputNeeded)
                 {
                     validBoardPositionInput = getBoardPositionFromUser();

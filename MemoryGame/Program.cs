@@ -4,7 +4,7 @@
     {
         public static void Main()
         {
-            UI.UI game = new UI.UI();
+            UI.ConsoleInteraction game = new UI.ConsoleInteraction();
             game.PlayGame();
         }
     }
